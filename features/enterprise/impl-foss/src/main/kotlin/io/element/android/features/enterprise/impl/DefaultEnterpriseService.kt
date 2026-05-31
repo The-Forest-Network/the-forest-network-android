@@ -24,8 +24,9 @@ class DefaultEnterpriseService : EnterpriseService {
 
     override suspend fun isEnterpriseUser(sessionId: SessionId) = false
     override suspend fun tweakMasUrl(url: String, homeserver: String) = url
-    override fun defaultHomeserverList(): List<String> = emptyList()
-    override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) = true
+    override fun defaultHomeserverList(): List<String> = listOf("https://matrix.theforestnetwork.earth")
+    override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) =
+        homeserverUrl == "https://matrix.theforestnetwork.earth"
 
     override suspend fun overrideBrandColor(sessionId: SessionId?, brandColor: String?) = Unit
 
@@ -41,7 +42,7 @@ class DefaultEnterpriseService : EnterpriseService {
     override fun unifiedPushDefaultPushGateway(): String? = null
 
     override fun bugReportUrlFlow(sessionId: SessionId?): Flow<BugReportUrl> {
-        return flowOf(BugReportUrl.UseDefault)
+        return flowOf(BugReportUrl.Disabled)
     }
 
     override fun getNoisyNotificationChannelId(sessionId: SessionId): String? = null
