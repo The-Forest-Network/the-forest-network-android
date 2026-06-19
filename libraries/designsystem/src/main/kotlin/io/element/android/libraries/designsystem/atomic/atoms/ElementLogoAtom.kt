@@ -8,6 +8,7 @@
 
 package io.element.android.libraries.designsystem.atomic.atoms
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,6 +40,7 @@ fun ElementLogoAtom(
     modifier: Modifier = Modifier,
     useBlurredShadow: Boolean = canUseBlurMaskFilter(),
     darkTheme: Boolean = ElementTheme.isLightTheme.not(),
+    @DrawableRes customLogoResId: Int? = null,
 ) {
     val blur = if (darkTheme) 160.dp else 24.dp
     val shadowColor = if (darkTheme) size.shadowColorDark else size.shadowColorLight
@@ -84,7 +86,6 @@ fun ElementLogoAtom(
         Image(
             modifier = Modifier
                 .size(size.logoSize)
-                // Do the same double shadow than on Figma...
                 .shadow(
                     elevation = 35.dp,
                     clip = false,
@@ -97,7 +98,7 @@ fun ElementLogoAtom(
                     shape = CircleShape,
                     ambientColor = Color(0x80000000),
                 ),
-            painter = painterResource(id = R.drawable.element_logo),
+            painter = painterResource(id = customLogoResId ?: R.drawable.element_logo),
             contentDescription = null
         )
     }
