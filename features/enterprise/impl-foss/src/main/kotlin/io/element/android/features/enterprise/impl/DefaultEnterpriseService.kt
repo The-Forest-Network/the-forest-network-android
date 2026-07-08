@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.compound.colors.SemanticColorsLightDark
+import io.element.android.compound.tokens.generated.compoundColorsDark
+import io.element.android.compound.tokens.generated.compoundColorsLight
 import io.element.android.features.enterprise.api.BugReportUrl
 import io.element.android.features.enterprise.api.EnterpriseService
 import io.element.android.libraries.matrix.api.core.SessionId
@@ -31,11 +33,47 @@ class DefaultEnterpriseService : EnterpriseService {
     override suspend fun overrideBrandColor(sessionId: SessionId?, brandColor: String?) = Unit
 
     override fun brandColorsFlow(sessionId: SessionId?): Flow<Color?> {
-        return flowOf(null)
+        return flowOf(Color(0xFF535946))
     }
 
     override fun semanticColorsFlow(sessionId: SessionId?): Flow<SemanticColorsLightDark> {
-        return flowOf(SemanticColorsLightDark.default)
+        val brandRest = Color(0xFF535946)
+        val brandHovered = Color(0xFF3D4234)
+        val brandPressed = Color(0xFF2A2D24)
+        val brandSubtle = Color(0xFF6B7060)
+        val brandSelected = Color(0x33535946)
+        return flowOf(
+            SemanticColorsLightDark(
+                light = compoundColorsLight.copy(
+                    bgAccentRest = brandRest,
+                    bgAccentHovered = brandHovered,
+                    bgAccentPressed = brandPressed,
+                    bgAccentSelected = brandSelected,
+                    borderAccentPrimary = brandRest,
+                    borderAccentSubtle = brandSubtle,
+                    iconAccentPrimary = brandRest,
+                    iconAccentTertiary = brandSubtle,
+                    bgActionPrimaryRest = brandRest,
+                    bgActionPrimaryHovered = brandHovered,
+                    bgActionPrimaryPressed = brandPressed,
+                    borderInteractiveHovered = brandRest,
+                ),
+                dark = compoundColorsDark.copy(
+                    bgAccentRest = brandRest,
+                    bgAccentHovered = brandHovered,
+                    bgAccentPressed = brandPressed,
+                    bgAccentSelected = brandSelected,
+                    borderAccentPrimary = brandRest,
+                    borderAccentSubtle = brandSubtle,
+                    iconAccentPrimary = brandRest,
+                    iconAccentTertiary = brandSubtle,
+                    bgActionPrimaryRest = brandRest,
+                    bgActionPrimaryHovered = brandHovered,
+                    bgActionPrimaryPressed = brandPressed,
+                    borderInteractiveHovered = brandRest,
+                ),
+            )
+        )
     }
 
     override fun firebasePushGateway(): String? = null
