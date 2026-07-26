@@ -9,13 +9,12 @@
 package config
 
 object BuildTimeConfig {
-    const val APPLICATION_ID = "earth.theforestnetwork.android"
+    const val APPLICATION_ID = "earth.theforestnetwork.village.android"
     const val APPLICATION_NAME = "The Forest Network"
-    // Replace these with your own Firebase App IDs after creating a Firebase project.
-    // Register earth.theforestnetwork.android, download google-services.json → app/
-    const val GOOGLE_APP_ID_RELEASE = "TODO_REPLACE_WITH_FIREBASE_APP_ID_RELEASE"
-    const val GOOGLE_APP_ID_DEBUG = "TODO_REPLACE_WITH_FIREBASE_APP_ID_DEBUG"
-    const val GOOGLE_APP_ID_NIGHTLY = "TODO_REPLACE_WITH_FIREBASE_APP_ID_NIGHTLY"
+    // Firebase project: the-forest-network-baef8.
+    const val GOOGLE_APP_ID_RELEASE = "1:730998879297:android:6bd20f1b51524b2627c2c0"
+    const val GOOGLE_APP_ID_DEBUG = "1:730998879297:android:e65718b849c90aa127c2c0"
+    const val GOOGLE_APP_ID_NIGHTLY = "1:730998879297:android:b8593ef1d9d2b03627c2c0"
 
     val METADATA_HOST_REVERSED: String? = null
     val URL_WEBSITE: String? = "https://theforestnetwork.earth"
