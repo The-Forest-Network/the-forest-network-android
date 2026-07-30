@@ -19,6 +19,7 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import io.element.android.annotations.ContributesNode
 import io.element.android.features.login.impl.util.openLearnMorePage
+import io.element.android.features.login.impl.util.openRequestAccountPage
 import io.element.android.libraries.architecture.NodeInputs
 import io.element.android.libraries.architecture.callback
 import io.element.android.libraries.architecture.inputs
@@ -75,6 +76,7 @@ class OnBoardingNode(
             onNeedLoginPassword = callback::navigateToLoginPassword,
             onLearnMoreClick = { openLearnMorePage(context) },
             onCreateAccountContinue = callback::navigateToCreateAccount,
+            onRequestAccountClick = { openRequestAccountPage(context) },
             onBackClick = callback::onDone,
             onDeveloperSettingsClick = callback::navigateToDeveloperSettings,
         )

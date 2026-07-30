@@ -12,9 +12,15 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
 import io.element.android.appconfig.AuthenticationConfig
+import io.element.android.features.login.impl.BuildConfig
 import io.element.android.libraries.core.data.tryOrNull
 
 fun openLearnMorePage(context: Context) {
     val intent = Intent(Intent.ACTION_VIEW, AuthenticationConfig.SLIDING_SYNC_READ_MORE_URL.toUri())
+    tryOrNull { context.startActivity(intent) }
+}
+
+fun openRequestAccountPage(context: Context) {
+    val intent = Intent(Intent.ACTION_VIEW, BuildConfig.URL_REQUEST_ACCOUNT.toUri())
     tryOrNull { context.startActivity(intent) }
 }

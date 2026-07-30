@@ -1,3 +1,4 @@
+import config.BuildTimeConfig
 import extension.buildConfigFieldStr
 import extension.setupDependencyInjection
 import extension.testCommonDependencies
@@ -27,6 +28,13 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+
+    defaultConfig {
+        buildConfigFieldStr(
+            name = "URL_REQUEST_ACCOUNT",
+            value = BuildTimeConfig.URL_REQUEST_ACCOUNT ?: "https://element.io",
+        )
     }
 
     buildTypes {

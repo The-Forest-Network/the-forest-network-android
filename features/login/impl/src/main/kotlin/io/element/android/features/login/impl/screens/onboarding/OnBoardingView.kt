@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.tokens.generated.CompoundIcons
+import io.element.android.features.login.impl.BuildConfig
 import io.element.android.features.login.impl.R
 import io.element.android.features.login.impl.login.LoginModeView
 import io.element.android.libraries.architecture.AsyncData
@@ -44,6 +45,7 @@ import io.element.android.libraries.designsystem.atomic.pages.OnBoardingPage
 import io.element.android.libraries.designsystem.components.BigIcon
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
+import io.element.android.libraries.designsystem.text.stringWithLink
 import io.element.android.libraries.designsystem.theme.components.Button
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.IconButton
@@ -73,6 +75,7 @@ fun OnBoardingView(
     onLearnMoreClick: () -> Unit,
     onCreateAccountContinue: (url: String) -> Unit,
     onReportProblem: () -> Unit,
+    onRequestAccountClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val loginView = @Composable {
@@ -94,6 +97,7 @@ fun OnBoardingView(
             onSignIn = onSignIn,
             onCreateAccount = onCreateAccount,
             onReportProblem = onReportProblem,
+            onRequestAccountClick = onRequestAccountClick,
         )
     }
 
@@ -257,6 +261,7 @@ private fun OnBoardingButtons(
     onSignIn: (mustChooseAccountProvider: Boolean) -> Unit,
     onCreateAccount: () -> Unit,
     onReportProblem: () -> Unit,
+    onRequestAccountClick: () -> Unit,
 ) {
     val isLoading by remember(state.loginMode) {
         derivedStateOf {
@@ -309,6 +314,21 @@ private fun OnBoardingButtons(
                     .fillMaxWidth()
             )
         }
+        val requestAccountText = stringWithLink(
+            textRes = R.string.screen_onboarding_request_account_message,
+            url = BuildConfig.URL_REQUEST_ACCOUNT,
+            linkTextRes = R.string.screen_onboarding_request_account_content_link,
+            onLinkClick = { onRequestAccountClick() },
+        )
+        Text(
+            text = requestAccountText,
+            style = ElementTheme.typography.fontBodySmRegular,
+            color = ElementTheme.colors.textSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        )
         if (state.isAddingAccount.not()) {
             if (state.canReportBug) {
                 // Add a report problem text button. Use a Text since we need a special theme here.
@@ -353,5 +373,6 @@ internal fun OnBoardingViewPreview(
         onNeedLoginPassword = {},
         onLearnMoreClick = {},
         onCreateAccountContinue = {},
+        onRequestAccountClick = {},
     )
 }
