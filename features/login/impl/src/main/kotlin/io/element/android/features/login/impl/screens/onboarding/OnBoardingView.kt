@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -188,49 +187,38 @@ private fun AddOtherAccountScaffold(
 
 @Composable
 private fun OnBoardingContent(state: OnBoardingState) {
-    Box(
+    // A sequential layout (rather than two independently-positioned overlays) guarantees the
+    // logo and text can never overlap, however little vertical space is available.
+    Column(
         modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = BiasAlignment(
-                horizontalBias = 0f,
-                verticalBias = -0.4f
-            )
+        Spacer(modifier = Modifier.weight(1f))
+        ElementLogoAtom(
+            size = ElementLogoAtomSize.Large,
+            modifier = Modifier.padding(top = ElementLogoAtomSize.Large.shadowRadius / 2),
+            customLogoResId = state.onBoardingLogoResId,
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = CenterHorizontally,
         ) {
-            ElementLogoAtom(
-                size = ElementLogoAtomSize.Large,
-                modifier = Modifier.padding(top = ElementLogoAtomSize.Large.shadowRadius / 2),
-                customLogoResId = state.onBoardingLogoResId,
+            Text(
+                text = stringResource(id = R.string.screen_onboarding_welcome_title),
+                color = ElementTheme.colors.textPrimary,
+                style = ElementTheme.typography.fontHeadingLgBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(id = R.string.screen_onboarding_welcome_message, state.productionApplicationName),
+                color = ElementTheme.colors.textSecondary,
+                style = ElementTheme.typography.fontBodyLgRegular.copy(fontSize = 17.sp),
+                textAlign = TextAlign.Center
             )
         }
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = BiasAlignment(
-                horizontalBias = 0f,
-                verticalBias = 0.6f
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(id = R.string.screen_onboarding_welcome_title),
-                    color = ElementTheme.colors.textPrimary,
-                    style = ElementTheme.typography.fontHeadingLgBold,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(id = R.string.screen_onboarding_welcome_message, state.productionApplicationName),
-                    color = ElementTheme.colors.textSecondary,
-                    style = ElementTheme.typography.fontBodyLgRegular.copy(fontSize = 17.sp),
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
