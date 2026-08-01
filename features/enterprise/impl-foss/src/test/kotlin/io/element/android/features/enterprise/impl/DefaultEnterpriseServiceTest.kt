@@ -8,9 +8,12 @@
 
 package io.element.android.features.enterprise.impl
 
+import androidx.compose.ui.graphics.Color
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import io.element.android.compound.colors.SemanticColorsLightDark
+import io.element.android.compound.tokens.generated.compoundColorsDark
+import io.element.android.compound.tokens.generated.compoundColorsLight
 import io.element.android.features.enterprise.api.BugReportUrl
 import io.element.android.libraries.matrix.test.A_HOMESERVER_URL
 import io.element.android.libraries.matrix.test.A_SESSION_ID
@@ -18,6 +21,42 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class DefaultEnterpriseServiceTest {
+    private val brandRest = Color(0xFF535946)
+    private val brandHovered = Color(0xFF3D4234)
+    private val brandPressed = Color(0xFF2A2D24)
+    private val brandSubtle = Color(0xFF6B7060)
+    private val brandSelected = Color(0x33535946)
+    private val expectedSemanticColors = SemanticColorsLightDark(
+        light = compoundColorsLight.copy(
+            bgAccentRest = brandRest,
+            bgAccentHovered = brandHovered,
+            bgAccentPressed = brandPressed,
+            bgAccentSelected = brandSelected,
+            borderAccentPrimary = brandRest,
+            borderAccentSubtle = brandSubtle,
+            iconAccentPrimary = brandRest,
+            iconAccentTertiary = brandSubtle,
+            bgActionPrimaryRest = brandRest,
+            bgActionPrimaryHovered = brandHovered,
+            bgActionPrimaryPressed = brandPressed,
+            borderInteractiveHovered = brandRest,
+        ),
+        dark = compoundColorsDark.copy(
+            bgAccentRest = brandRest,
+            bgAccentHovered = brandHovered,
+            bgAccentPressed = brandPressed,
+            bgAccentSelected = brandSelected,
+            borderAccentPrimary = brandRest,
+            borderAccentSubtle = brandSubtle,
+            iconAccentPrimary = brandRest,
+            iconAccentTertiary = brandSubtle,
+            bgActionPrimaryRest = brandRest,
+            bgActionPrimaryHovered = brandHovered,
+            bgActionPrimaryPressed = brandPressed,
+            borderInteractiveHovered = brandRest,
+        ),
+    )
+
     @Test
     fun `isEnterpriseBuild is false`() {
         val defaultEnterpriseService = DefaultEnterpriseService()
@@ -25,15 +64,16 @@ class DefaultEnterpriseServiceTest {
     }
 
     @Test
-    fun `defaultHomeserverList should return empty list`() {
+    fun `defaultHomeserverList returns the Forest Network homeserver`() {
         val defaultEnterpriseService = DefaultEnterpriseService()
-        assertThat(defaultEnterpriseService.defaultHomeserverList()).isEmpty()
+        assertThat(defaultEnterpriseService.defaultHomeserverList()).containsExactly("https://matrix.theforestnetwork.earth")
     }
 
     @Test
-    fun `isAllowedToConnectToHomeserver is true for all homeserver urls`() = runTest {
+    fun `isAllowedToConnectToHomeserver is true only for the Forest Network homeserver`() = runTest {
         val defaultEnterpriseService = DefaultEnterpriseService()
-        assertThat(defaultEnterpriseService.isAllowedToConnectToHomeserver(A_HOMESERVER_URL)).isTrue()
+        assertThat(defaultEnterpriseService.isAllowedToConnectToHomeserver("https://matrix.theforestnetwork.earth")).isTrue()
+        assertThat(defaultEnterpriseService.isAllowedToConnectToHomeserver(A_HOMESERVER_URL)).isFalse()
     }
 
     @Test
@@ -43,31 +83,31 @@ class DefaultEnterpriseServiceTest {
     }
 
     @Test
-    fun `semanticColorsFlow always emits the same value`() = runTest {
+    fun `semanticColorsFlow always emits the Forest Network brand colours`() = runTest {
         val defaultEnterpriseService = DefaultEnterpriseService()
         defaultEnterpriseService.semanticColorsFlow(null).test {
             val initialState = awaitItem()
-            assertThat(initialState).isEqualTo(SemanticColorsLightDark.default)
+            assertThat(initialState).isEqualTo(expectedSemanticColors)
             awaitComplete()
         }
     }
 
     @Test
-    fun `brandColorsFlow always emits null`() = runTest {
+    fun `brandColorsFlow always emits the Forest Network brand colour`() = runTest {
         val defaultEnterpriseService = DefaultEnterpriseService()
         defaultEnterpriseService.brandColorsFlow(null).test {
             val initialState = awaitItem()
-            assertThat(initialState).isNull()
+            assertThat(initialState).isEqualTo(brandRest)
             awaitComplete()
         }
     }
 
     @Test
-    fun `semanticColorsFlow always emits the same value for a session`() = runTest {
+    fun `semanticColorsFlow always emits the Forest Network brand colours for a session`() = runTest {
         val defaultEnterpriseService = DefaultEnterpriseService()
         defaultEnterpriseService.semanticColorsFlow(A_SESSION_ID).test {
             val initialState = awaitItem()
-            assertThat(initialState).isEqualTo(SemanticColorsLightDark.default)
+            assertThat(initialState).isEqualTo(expectedSemanticColors)
             awaitComplete()
         }
     }
@@ -91,10 +131,10 @@ class DefaultEnterpriseServiceTest {
     }
 
     @Test
-    fun `bugReportUrlFlow only emits UseDefault`() = runTest {
+    fun `bugReportUrlFlow only emits Disabled`() = runTest {
         val defaultEnterpriseService = DefaultEnterpriseService()
         defaultEnterpriseService.bugReportUrlFlow(A_SESSION_ID).test {
-            assertThat(awaitItem()).isEqualTo(BugReportUrl.UseDefault)
+            assertThat(awaitItem()).isEqualTo(BugReportUrl.Disabled)
             awaitComplete()
         }
     }

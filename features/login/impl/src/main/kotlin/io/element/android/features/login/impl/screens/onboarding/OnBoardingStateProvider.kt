@@ -19,15 +19,12 @@ open class OnBoardingStateProvider : PreviewParameterProvider<OnBoardingState> {
         get() = sequenceOf(
             anOnBoardingState(),
             anOnBoardingState(canLoginWithQrCode = true),
-            anOnBoardingState(canCreateAccount = true),
-            anOnBoardingState(canLoginWithQrCode = true, canCreateAccount = true),
-            anOnBoardingState(canLoginWithQrCode = true, canCreateAccount = true, canReportBug = true),
-            anOnBoardingState(defaultAccountProvider = "element.io", canCreateAccount = false, canReportBug = true),
+            anOnBoardingState(canLoginWithQrCode = true, canReportBug = true),
+            anOnBoardingState(defaultAccountProvider = "element.io", canReportBug = true),
             anOnBoardingState(customLogoResId = R.drawable.sample_background),
             anOnBoardingState(
                 isAddingAccount = true,
                 canLoginWithQrCode = true,
-                canCreateAccount = true,
             ),
             anOnBoardingState(
                 showBackButton = true,
@@ -48,7 +45,7 @@ fun anOnBoardingState(
     canReportBug: Boolean = false,
     version: String = "1.0.0",
     @DrawableRes
-    customLogoResId: Int? = null,
+    customLogoResId: Int? = R.drawable.onboarding_logo_preview,
     loginMode: AsyncData<LoginMode> = AsyncData.Uninitialized,
     eventSink: (OnBoardingEvents) -> Unit = {},
 ) = OnBoardingState(
