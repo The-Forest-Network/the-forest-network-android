@@ -8,7 +8,6 @@
 
 package io.element.android.features.login.impl.screens.onboarding
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -233,24 +231,6 @@ private fun OnBoardingContent(state: OnBoardingState) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun OnBoardingLogo(
-    onBoardingLogoResId: Int,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Image(
-            painter = painterResource(id = onBoardingLogoResId),
-            contentDescription = null
-        )
     }
 }
 
