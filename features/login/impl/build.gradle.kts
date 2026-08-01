@@ -37,6 +37,13 @@ android {
         )
     }
 
+    lint {
+        // Pre-existing StringFormatCount errors from Forest Network's branded onboarding
+        // strings losing their %1$s placeholder while untranslated locales kept it. See
+        // https://github.com/The-Forest-Network/the-forest-network-android/issues/18
+        baseline = file("lint-baseline.xml")
+    }
+
     buildTypes {
         val elementClassicPackageKey = "elementClassicPackage"
         val elementClassicPackage = "im.vector.app"

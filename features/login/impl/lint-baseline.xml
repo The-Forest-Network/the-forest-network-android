@@ -1,0 +1,1249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.13.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.13.2)" variant="all" version="8.13.2">
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    override fun createModifier("
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/io/element/android/features/login/impl/LoginFlowTransitionHandler.kt"
+            line="31"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Добре дошли в най-бързия %1$s досега. Супер зареден за скорост и простота.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bg/translations.xml"
+            line="33"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Ongi etorri inoizko %1$s azkarrenera. Abiaduraz eta sinpletasunaz gainkargatua.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-eu/translations.xml"
+            line="34"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Добре дошли в %1$s. Супер зареден за скорост и простота.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-bg/translations.xml"
+            line="34"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;კეთილი იყოს თქვენი მობრძანება უსწრაფეს %1$s-ში. დამუხტულია სიჩქარისა და სიმარტივისათვის.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ka/translations.xml"
+            line="35"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Ongi etorri %1$s-ra. Abiaduraz eta sinpletasunez gainezka.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-eu/translations.xml"
+            line="35"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Сардэчна запрашаем у самы хуткі %1$s. Перавага ў хуткасці і прастаце.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-be/translations.xml"
+            line="36"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Welkom bij de snelste %1$s ooit. Supercharged, voor snelheid en eenvoud.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nl/translations.xml"
+            line="36"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;اب تک کی تیز ترین %1$s میں خوش آمدید۔ رفتار اور سادگی کے لئے مشحون&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ur/translations.xml"
+            line="36"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;კეთილი იყოს თქვენი მობრძანება %1$s-ში! დამუხტული სიჩქარისა და სიმარტივისთვის.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ka/translations.xml"
+            line="36"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Et donem la benvinguda a %1$s. Més ràpid i simple que mai.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ca/translations.xml"
+            line="37"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Сардэчна запрашаем у %1$s. Зараджаны, для хуткасці і прастаты.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-be/translations.xml"
+            line="37"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Welkom bij %1$s. Supercharged, voor snelheid en eenvoud.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nl/translations.xml"
+            line="37"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;%1$s پر خوش آمدید۔ شحن فائق شدہ، رفتار اور سادگی کیلئے۔&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ur/translations.xml"
+            line="37"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;به سریع‌ترین %1$s خوش آمدید. بازطرّاحی شده برای سرعت و سادگی.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/translations.xml"
+            line="38"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Et donem la benvinguda a %1$s. Dissenyat per ser més ràpid i simple.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ca/translations.xml"
+            line="38"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;به %1$s خوش آمدید. بازطرّاحی شده برای سرعت و سادگی.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fa/translations.xml"
+            line="39"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Şimdiye kadarki en hızlı %1$s hoş geldiniz. Hız ve basitlik için güçlendirildi.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/translations.xml"
+            line="40"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;%1$s\&apos;e hoş geldiniz. Hız ve basitlik için süper şarjlı.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-tr/translations.xml"
+            line="41"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Bienvenido al %1$s más rápido de todos los tiempos. Diseñado para la velocidad y la simplicidad.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-es/translations.xml"
+            line="42"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Chào mừng đến với %1$s nhanh nhất từ trước đến nay. Tối ưu cho tốc độ và sự đơn giản.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/translations.xml"
+            line="43"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Bienvenido a %1$s. Vitaminado, para mayor rapidez y sencillez.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-es/translations.xml"
+            line="43"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Chào mừng đến với %1$s. Tối ưu hóa cho tốc độ và sự đơn giản.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-vi/translations.xml"
+            line="44"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Croeso i\&apos;r %1$s cyflymaf erioed. Yn nodedig am gyflymder a symlrwydd.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-cy/translations.xml"
+            line="45"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Selamat datang di %1$s tercepat yang pernah ada. Berdaya besar untuk kecepatan dan kesederhanaan.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-in/translations.xml"
+            line="45"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Sveiki atvykę į sparčiausią „%1$s“ kada nors. Pagerintas spartai ir paprastumui.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/translations.xml"
+            line="45"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Boas-vindas ao %1$s mais rápido de todos os tempos. Turbinado para velocidade e simplicidade.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/translations.xml"
+            line="45"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Bem-vindo(a) à %1$s mais rápida de sempre. Super rápida e simples.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/translations.xml"
+            line="45"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Vitajte v najrýchlejšom %1$s vôbec. Nadupaný pre rýchlosť a jednoduchosť.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sk/translations.xml"
+            line="45"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Välkommen till den snabbaste %1$s någonsin. Superladdad för snabbhet och enkelhet.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sv/translations.xml"
+            line="45"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Willkommen beim schnellsten %1$s aller Zeiten. Optimiert für Geschwindigkeit und Einfachheit.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-de/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Velkommen til den raskeste %1$s noensinne. Superladet for hastighet og enkelhet.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nb/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Croeso i %1$s. Yn nodedig ar gyfer cyflymder a symlrwydd.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-cy/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Selamat datang di %1$s. Berdaya penuh, untuk kecepatan dan kesederhanaan.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-in/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Sveiki atvykę į „%1$s“. Pagerintas spartai ir paprastumui.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-lt/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Bem-vindo ao %1$s. Turbinado, para velocidade e simplicidade&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt-rBR/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Bem-vindo(a) à %1$s. Revitalizado, rápido e simples.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pt/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Vitajte v %1$s. Nadupaný, pre rýchlosť a jednoduchosť.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sk/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Välkommen till %1$s. Superladdad, för snabbhet och enkelhet.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-sv/translations.xml"
+            line="46"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Willkommen zu %1$s. Aufgeladen, für Geschwindigkeit und Einfachheit.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-de/translations.xml"
+            line="47"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Velkommen til %1$s. Supercharged, for hastighet og enkelhet.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-nb/translations.xml"
+            line="47"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Καλώς ήλθατε στο γρηγορότερο %1$s όλων των εποχών. Υπερτροφοδοτούμενο με ταχύτητα και απλότητα.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-el/translations.xml"
+            line="53"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;最速の %1$s にようこそ。機能性と利便性を極限まで追求しました。&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/translations.xml"
+            line="53"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;%1$s 에 오신 것을 환영합니다. 속도와 단순성을 극대화한 가장 빠른 버전입니다.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ko/translations.xml"
+            line="53"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Eng tezkor %1$sga xush kelibsiz. Tezlik va oddiylik uchun super zaryadlangan.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-uz/translations.xml"
+            line="53"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Vítejte v dosud nejrychlejším %1$su. Vylepšený pro rychlost a jednoduchost.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-cs/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Velkommen til den hurtigste %1$s nogensinde. Supercharged til hastighed og enkelhed.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-da/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Läbi aegade kiireim ja mugavaim %1$s.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-et/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Tervetuloa kaikkien aikojen nopeimpaan %1$s -sovellukseen. Ahdettu nopeudella ja yksinkertaisuudella.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fi/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Bienvenue dans l’application %1$s la plus rapide de tous les temps. Boosté pour plus de rapidité et de simplicité.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Dobro došli u nikad brži %1$s. Snažniji no ikad za postizanje brzine i jednostavnosti.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hr/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Üdvözöljük a valaha volt leggyorsabb %1$sben. Felturbózva, a sebesség és az egyszerűség érdekében.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hu/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Benvenuti nell\&apos;%1$s più veloce di sempre. Potenziato per velocità e semplicità.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Witamy w %1$s. Szybszy i prostszy niż kiedykolwiek.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Bine ați venit la cel mai rapid %1$s din toate timpurile. Supraalimentat pentru viteză și simplitate.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ro/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Добро пожаловать в быстрый и простой %1$s.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;Ласкаво просимо до найшвидшого %1$s. Заряджений для швидкості та простоти.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-uk/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;歡迎使用有史以來最快的 %1$s。速度超快，操作簡便。&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_message`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_message&quot;>&quot;欢迎使用迄今最快的 %1$s，速度与简洁的极致。&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="54"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Καλώς ήρθες στο %1$s. Υπερφορτισμένο, για ταχύτητα και απλότητα.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-el/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;機敏と利便を追求した %1$s へようこそ。&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ja/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;%1$s 에 오신 것을 환영합니다. 속도와 단순성을 위해 최적화된 앱입니다.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ko/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;%1$sga Xush kelibsiz. Tezlik va oddiylik uchun o\&apos;ta zaryadlangan.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-uz/translations.xml"
+            line="54"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Vítejte v %1$su. Vylepšený, pro rychlost a jednoduchost.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-cs/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Velkommen til %1$s. Ladet med hastighed og enkelhed.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-da/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Tere tulemast kasutama kiiret ja lihtsat suhtlusrakendust %1$s.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-et/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Tervetuloa %1$s -sovellukseen. Ahdettu nopeudella ja yksinkertaisuudella.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fi/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Bienvenue sur %1$s. Boosté, pour plus de rapidité et de simplicité.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-fr/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Dobro došli u %1$s. Snažniji no ikad – za brzinu i jednostavnost.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hr/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Üdvözli az %1$s. Felturbózva, a sebesség és az egyszerűség jegyében.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-hu/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Benvenuto su %1$s. Potenziato in velocità e semplicità.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-it/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Witamy w %1$s. Doładowany, dla szybkości i prostoty.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-pl/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Bun venit în %1$s. Supraalimentat, pentru viteză și simplitate.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ro/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Добро пожаловать в быстрый и простой %1$s.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-ru/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;Ласкаво просимо до %1$s. Заряджений, для швидкості та простоти.&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-uk/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;歡迎使用 %1$s。速度超快且簡單。&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh-rTW/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `screen_onboarding_welcome_subtitle`; found both 1 here and 0 in values/localazy.xml"
+        errorLine1="  &lt;string name=&quot;screen_onboarding_welcome_subtitle&quot;>&quot;欢迎使用 %1$s，速度与简洁的极致。&quot;&lt;/string>"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-zh/translations.xml"
+            line="55"
+            column="3"/>
+        <location
+            file="src/main/res/values/localazy.xml"
+            line="55"
+            column="3"
+            message="Conflicting number of arguments (0) here"/>
+    </issue>
+
+    <issue
+        id="HandlerLeak"
+        message="This `Handler` class should be static or leaks might occur (io.element.android.features.login.impl.classic.DefaultElementClassicConnection.IncomingHandler)"
+        errorLine1="    inner class IncomingHandler : Handler() {"
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/io/element/android/features/login/impl/classic/ElementClassicConnection.kt"
+            line="206"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="IconMissingDensityFolder"
+        message="Missing density variation folders in `src/main/res`: drawable-hdpi, drawable-mdpi, drawable-xhdpi">
+        <location
+            file="src/main/res"/>
+    </issue>
+
+</issues>
