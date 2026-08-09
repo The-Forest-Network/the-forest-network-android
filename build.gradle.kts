@@ -126,6 +126,14 @@ dependencyAnalysis {
     }
 }
 
+// NVD API key raises the NVD data feed rate limit; without it, dependencyCheckAnalyze
+// fails outright rather than just running slowly. Set as the NVD_API_KEY secret in CI.
+dependencyCheck {
+    nvd {
+        apiKey = System.getenv("NVD_API_KEY")
+    }
+}
+
 // To run a sonar analysis:
 // Run './gradlew sonar -Dsonar.login=<SONAR_LOGIN>'
 // The SONAR_LOGIN is stored in passbolt as Token Sonar Cloud Bma
