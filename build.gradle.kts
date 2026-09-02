@@ -91,6 +91,13 @@ allprojects {
     apply {
         plugin("org.owasp.dependencycheck")
     }
+    // NVD API key raises the NVD data feed rate limit; without it, dependencyCheckAnalyze
+    // fails outright rather than just running slowly. Set as the NVD_API_KEY secret in CI.
+    configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
+        nvd {
+            apiKey = System.getenv("NVD_API_KEY")
+        }
+    }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         compilerOptions {
