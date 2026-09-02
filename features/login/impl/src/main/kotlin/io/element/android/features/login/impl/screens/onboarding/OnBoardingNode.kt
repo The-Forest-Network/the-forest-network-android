@@ -8,6 +8,7 @@
 
 package io.element.android.features.login.impl.screens.onboarding
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -18,8 +19,10 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import io.element.android.annotations.ContributesNode
+import io.element.android.compound.theme.ElementTheme
+import io.element.android.features.login.impl.BuildConfig
 import io.element.android.features.login.impl.util.openLearnMorePage
-import io.element.android.features.login.impl.util.openRequestAccountPage
+import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTab
 import io.element.android.libraries.architecture.NodeInputs
 import io.element.android.libraries.architecture.callback
 import io.element.android.libraries.architecture.inputs
@@ -64,6 +67,8 @@ class OnBoardingNode(
     override fun View(modifier: Modifier) {
         val state = presenter.present()
         val context = LocalContext.current
+        val activity = requireNotNull(LocalActivity.current)
+        val isDark = ElementTheme.isLightTheme.not()
 
         OnBoardingView(
             state = state,
@@ -76,7 +81,7 @@ class OnBoardingNode(
             onNeedLoginPassword = callback::navigateToLoginPassword,
             onLearnMoreClick = { openLearnMorePage(context) },
             onCreateAccountContinue = callback::navigateToCreateAccount,
-            onRequestAccountClick = { openRequestAccountPage(context) },
+            onRequestAccountClick = { activity.openUrlInChromeCustomTab(null, isDark, BuildConfig.URL_REQUEST_ACCOUNT) },
             onBackClick = callback::onDone,
             onDeveloperSettingsClick = callback::navigateToDeveloperSettings,
         )
