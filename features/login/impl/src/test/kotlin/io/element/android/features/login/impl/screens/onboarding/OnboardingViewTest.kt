@@ -11,8 +11,10 @@
 package io.element.android.features.login.impl.screens.onboarding
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -142,6 +144,19 @@ class OnboardingViewTest {
         val buttonText = activity!!.getString(R.string.screen_onboarding_sign_in_to, "element.io")
         onNodeWithText(buttonText).performClick()
         eventSink.assertSingle(OnBoardingEvents.OnSignIn("element.io"))
+    }
+
+    @Test
+    fun `clicking on the trailhead link calls the expected callback`() = runAndroidComposeUiTest {
+        val eventSink = EventsRecorder<OnBoardingEvents>(expectEvents = false)
+        ensureCalledOnce { callback ->
+            setOnboardingView(
+                state = anOnBoardingState(eventSink = eventSink),
+                onRequestAccountClick = callback,
+            )
+            val isLink = SemanticsMatcher("has link action") { it.config.contains(SemanticsProperties.LinkTestMarker) }
+            onNode(isLink, useUnmergedTree = true).performClick()
+        }
     }
 
     @Test
