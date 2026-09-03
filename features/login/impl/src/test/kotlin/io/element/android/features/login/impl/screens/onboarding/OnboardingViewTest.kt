@@ -11,6 +11,7 @@
 package io.element.android.features.login.impl.screens.onboarding
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -18,6 +19,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import com.google.testing.junit.testparameterinjector.KotlinTestParameters.namedTestValues
 import com.google.testing.junit.testparameterinjector.TestParameter
@@ -155,7 +157,7 @@ class OnboardingViewTest {
                 onRequestAccountClick = callback,
             )
             val isLink = SemanticsMatcher("has link action") { it.config.contains(SemanticsProperties.LinkTestMarker) }
-            onNode(isLink, useUnmergedTree = true).performClick()
+            onNode(isLink, useUnmergedTree = true).performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
