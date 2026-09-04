@@ -17,6 +17,7 @@ object BuildTimeConfig {
     const val GOOGLE_APP_ID_NIGHTLY = "1:730998879297:android:b8593ef1d9d2b03627c2c0"
 
     val METADATA_HOST_REVERSED: String? = null
+    val OAUTH_CLIENT_URL_PATH: String? = "apps/android"
     val URL_WEBSITE: String? = "https://theforestnetwork.earth"
     val URL_LOGO: String? = null
     val URL_COPYRIGHT: String? = "https://theforestnetwork.earth/copyright"
@@ -34,7 +35,9 @@ object BuildTimeConfig {
     val SERVICES_SENTRY_DSN_RUST: String? = null
     val BUG_REPORT_URL: String? = null
     val BUG_REPORT_APP_NAME: String? = null
-
-    const val PUSH_CONFIG_INCLUDE_FIREBASE = true
-    const val PUSH_CONFIG_INCLUDE_UNIFIED_PUSH = true
+    const val PUSH_CONFIG_INCLUDE_FIREBASE: Boolean = true
+    const val PUSH_CONFIG_INCLUDE_UNIFIED_PUSH: Boolean = true
+    val PUSHER_APP_ID_RELEASE: String? = null
+    val PUSHER_APP_ID_DEBUG: String? = null
+    val PUSHER_APP_ID_NIGHTLY: String? = null
 }

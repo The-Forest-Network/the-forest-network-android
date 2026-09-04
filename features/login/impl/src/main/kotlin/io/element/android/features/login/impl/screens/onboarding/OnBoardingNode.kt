@@ -46,7 +46,6 @@ class OnBoardingNode(
         fun navigateToBugReport()
         fun navigateToLoginPassword()
         fun navigateToOAuth(oAuthDetails: OAuthDetails)
-        fun navigateToCreateAccount(url: String)
         fun navigateToDeveloperSettings()
         fun onDone()
     }
@@ -82,7 +81,6 @@ class OnBoardingNode(
             onOAuthDetails = callback::navigateToOAuth,
             onNeedLoginPassword = callback::navigateToLoginPassword,
             onLearnMoreClick = { openLearnMorePage(context) },
-            onCreateAccountContinue = callback::navigateToCreateAccount,
             onRequestAccountClick = { activity.openUrlInChromeCustomTab(null, isDark, BuildConfig.URL_REQUEST_ACCOUNT, toolbarColor) },
             onBackClick = callback::onDone,
             onDeveloperSettingsClick = callback::navigateToDeveloperSettings,

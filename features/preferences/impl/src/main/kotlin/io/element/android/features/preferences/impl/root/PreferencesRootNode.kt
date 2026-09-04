@@ -20,11 +20,12 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import io.element.android.annotations.ContributesNode
 import io.element.android.compound.theme.ElementTheme
-import io.element.android.features.logout.api.direct.DirectLogoutEvents
+import io.element.android.features.logout.api.direct.DirectLogoutEvent
 import io.element.android.features.logout.api.direct.DirectLogoutView
 import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTab
 import io.element.android.libraries.architecture.callback
 import io.element.android.libraries.di.SessionScope
+import io.element.android.libraries.emoji.api.picker.EmojiPickerRenderer
 import io.element.android.libraries.matrix.api.user.MatrixUser
 
 @ContributesNode(SessionScope::class)
@@ -34,6 +35,7 @@ class PreferencesRootNode(
     @Assisted plugins: List<Plugin>,
     private val presenter: PreferencesRootPresenter,
     private val directLogoutView: DirectLogoutView,
+    private val emojiPickerRenderer: EmojiPickerRenderer,
 ) : Node(buildContext, plugins = plugins) {
     interface Callback : Plugin {
         fun navigateToAddAccount()
@@ -79,6 +81,7 @@ class PreferencesRootNode(
         val toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
         PreferencesRootView(
             state = state,
+            emojiPickerRenderer = emojiPickerRenderer,
             modifier = modifier,
             onBackClick = this::navigateUp,
             onAddAccountClick = callback::navigateToAddAccount,
@@ -97,7 +100,7 @@ class PreferencesRootNode(
             onOpenBlockedUsers = callback::navigateToBlockedUsers,
             onSignOutClick = {
                 if (state.directLogoutState.canDoDirectSignOut) {
-                    state.directLogoutState.eventSink(DirectLogoutEvents.Logout(ignoreSdkError = false))
+                    state.directLogoutState.eventSink(DirectLogoutEvent.Logout(ignoreSdkError = false))
                 } else {
                     callback.startSignOutFlow()
                 }
