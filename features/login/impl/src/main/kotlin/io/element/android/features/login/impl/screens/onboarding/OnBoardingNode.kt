@@ -11,6 +11,7 @@ package io.element.android.features.login.impl.screens.onboarding
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
@@ -69,6 +70,7 @@ class OnBoardingNode(
         val context = LocalContext.current
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
+        val toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
 
         OnBoardingView(
             state = state,
@@ -81,7 +83,7 @@ class OnBoardingNode(
             onNeedLoginPassword = callback::navigateToLoginPassword,
             onLearnMoreClick = { openLearnMorePage(context) },
             onCreateAccountContinue = callback::navigateToCreateAccount,
-            onRequestAccountClick = { activity.openUrlInChromeCustomTab(null, isDark, BuildConfig.URL_REQUEST_ACCOUNT) },
+            onRequestAccountClick = { activity.openUrlInChromeCustomTab(null, isDark, BuildConfig.URL_REQUEST_ACCOUNT, toolbarColor) },
             onBackClick = callback::onDone,
             onDeveloperSettingsClick = callback::navigateToDeveloperSettings,
         )

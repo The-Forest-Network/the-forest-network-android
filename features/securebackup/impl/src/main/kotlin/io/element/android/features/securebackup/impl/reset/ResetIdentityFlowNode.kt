@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.window.DialogProperties
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
@@ -76,6 +77,7 @@ class ResetIdentityFlowNode(
 
     private lateinit var activity: Activity
     private var darkTheme: Boolean = false
+    private var toolbarColor: Int = 0
     private var resetJob: Job? = null
 
     override fun onBuilt() {
@@ -128,7 +130,7 @@ class ResetIdentityFlowNode(
                     is IdentityOAuthResetHandle -> {
                         Timber.d("Launching reset confirmation in MAS")
                         val url = sessionEnterpriseService.tweakMasUrl(handle.url)
-                        activity.openUrlInChromeCustomTab(null, darkTheme, url)
+                        activity.openUrlInChromeCustomTab(null, darkTheme, url, toolbarColor)
                         Timber.d("Starting resetOAuth")
                         resetJob = launch { handle.resetOAuth() }
                         resetJob?.invokeOnCompletion { Timber.d("resetOAuth ended") }
@@ -164,6 +166,7 @@ class ResetIdentityFlowNode(
             activity = requireNotNull(LocalActivity.current)
         }
         darkTheme = !ElementTheme.isLightTheme
+        toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
         val startResetState by resetIdentityFlowManager.currentHandleFlow.collectAsState()
         if (startResetState.isLoading()) {
             ProgressDialog(

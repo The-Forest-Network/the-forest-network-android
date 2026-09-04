@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
 import com.bumble.appyx.core.plugin.Plugin
@@ -39,19 +40,20 @@ class SecurityAndPrivacyNode(
 
     private val stateFlow = launchMolecule { presenter.present() }
 
-    private fun onOpenExternalUrl(activity: Activity, darkTheme: Boolean, url: String) {
-        activity.openUrlInChromeCustomTab(null, darkTheme, url)
+    private fun onOpenExternalUrl(activity: Activity, darkTheme: Boolean, toolbarColor: Int, url: String) {
+        activity.openUrlInChromeCustomTab(null, darkTheme, url, toolbarColor)
     }
 
     @Composable
     override fun View(modifier: Modifier) {
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
+        val toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
         val state by stateFlow.collectAsState()
         SecurityAndPrivacyView(
             state = state,
             onLinkClick = { url ->
-                onOpenExternalUrl(activity, isDark, url)
+                onOpenExternalUrl(activity, isDark, toolbarColor, url)
             },
             modifier = modifier
         )
