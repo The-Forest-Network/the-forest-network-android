@@ -8,7 +8,6 @@
 
 package io.element.android.features.login.impl.screens.onboarding
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,9 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -33,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.tokens.generated.CompoundIcons
+import io.element.android.features.login.impl.BuildConfig
 import io.element.android.features.login.impl.R
 import io.element.android.features.login.impl.login.LoginModeView
 import io.element.android.libraries.architecture.AsyncData
@@ -44,6 +42,7 @@ import io.element.android.libraries.designsystem.atomic.pages.OnBoardingPage
 import io.element.android.libraries.designsystem.components.BigIcon
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
+import io.element.android.libraries.designsystem.text.stringWithLink
 import io.element.android.libraries.designsystem.theme.components.Button
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.IconButton
@@ -73,6 +72,7 @@ fun OnBoardingView(
     onLearnMoreClick: () -> Unit,
     onCreateAccountContinue: (url: String) -> Unit,
     onReportProblem: () -> Unit,
+    onRequestAccountClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val loginView = @Composable {
@@ -94,6 +94,7 @@ fun OnBoardingView(
             onSignIn = onSignIn,
             onCreateAccount = onCreateAccount,
             onReportProblem = onReportProblem,
+            onRequestAccountClick = onRequestAccountClick,
         )
     }
 
@@ -186,67 +187,38 @@ private fun AddOtherAccountScaffold(
 
 @Composable
 private fun OnBoardingContent(state: OnBoardingState) {
-    Box(
+    // A sequential layout (rather than two independently-positioned overlays) guarantees the
+    // logo and text can never overlap, however little vertical space is available.
+    Column(
         modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = BiasAlignment(
-                horizontalBias = 0f,
-                verticalBias = -0.4f
-            )
-        ) {
-            ElementLogoAtom(
-                size = ElementLogoAtomSize.Large,
-                modifier = Modifier.padding(top = ElementLogoAtomSize.Large.shadowRadius / 2),
-                customLogoResId = state.onBoardingLogoResId,
-            )
-        }
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = BiasAlignment(
-                horizontalBias = 0f,
-                verticalBias = 0.6f
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(id = R.string.screen_onboarding_welcome_title),
-                    color = ElementTheme.colors.textPrimary,
-                    style = ElementTheme.typography.fontHeadingLgBold,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(id = R.string.screen_onboarding_welcome_message, state.productionApplicationName),
-                    color = ElementTheme.colors.textSecondary,
-                    style = ElementTheme.typography.fontBodyLgRegular.copy(fontSize = 17.sp),
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun OnBoardingLogo(
-    onBoardingLogoResId: Int,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Image(
-            painter = painterResource(id = onBoardingLogoResId),
-            contentDescription = null
+        Spacer(modifier = Modifier.weight(1f))
+        ElementLogoAtom(
+            size = ElementLogoAtomSize.Large,
+            modifier = Modifier.padding(top = ElementLogoAtomSize.Large.shadowRadius / 2),
+            customLogoResId = state.onBoardingLogoResId,
         )
+        Spacer(modifier = Modifier.weight(1f))
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = CenterHorizontally,
+        ) {
+            Text(
+                text = stringResource(id = R.string.screen_onboarding_welcome_title),
+                color = ElementTheme.colors.textPrimary,
+                style = ElementTheme.typography.fontHeadingLgBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(id = R.string.screen_onboarding_welcome_message, state.productionApplicationName),
+                color = ElementTheme.colors.textSecondary,
+                style = ElementTheme.typography.fontBodyLgRegular.copy(fontSize = 17.sp),
+                textAlign = TextAlign.Center
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -257,6 +229,7 @@ private fun OnBoardingButtons(
     onSignIn: (mustChooseAccountProvider: Boolean) -> Unit,
     onCreateAccount: () -> Unit,
     onReportProblem: () -> Unit,
+    onRequestAccountClick: () -> Unit,
 ) {
     val isLoading by remember(state.loginMode) {
         derivedStateOf {
@@ -309,6 +282,21 @@ private fun OnBoardingButtons(
                     .fillMaxWidth()
             )
         }
+        val requestAccountText = stringWithLink(
+            textRes = R.string.screen_onboarding_request_account_message,
+            url = BuildConfig.URL_REQUEST_ACCOUNT,
+            linkTextRes = R.string.screen_onboarding_request_account_content_link,
+            onLinkClick = { onRequestAccountClick() },
+        )
+        Text(
+            text = requestAccountText,
+            style = ElementTheme.typography.fontBodySmRegular,
+            color = ElementTheme.colors.textSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        )
         if (state.isAddingAccount.not()) {
             if (state.canReportBug) {
                 // Add a report problem text button. Use a Text since we need a special theme here.
@@ -353,5 +341,6 @@ internal fun OnBoardingViewPreview(
         onNeedLoginPassword = {},
         onLearnMoreClick = {},
         onCreateAccountContinue = {},
+        onRequestAccountClick = {},
     )
 }
