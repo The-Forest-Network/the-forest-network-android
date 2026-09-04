@@ -13,6 +13,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import com.bumble.appyx.core.lifecycle.subscribe
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
@@ -78,6 +79,7 @@ class LinkNewDeviceFlowNode(
     private val callback: LinkNewDeviceEntryPoint.Callback = callback()
     private var activity: Activity? = null
     private var darkTheme: Boolean = false
+    private var toolbarColor: Int = 0
 
     override fun onBuilt() {
         super.onBuilt()
@@ -311,6 +313,7 @@ class LinkNewDeviceFlowNode(
             session = null,
             darkTheme = darkTheme,
             url = sessionEnterpriseService.tweakMasUrl(url),
+            toolbarColor = toolbarColor,
         )
     }
 
@@ -318,6 +321,7 @@ class LinkNewDeviceFlowNode(
     override fun View(modifier: Modifier) {
         activity = requireNotNull(LocalActivity.current)
         darkTheme = !ElementTheme.isLightTheme
+        toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
         DisposableEffect(Unit) {
             onDispose {
                 activity = null

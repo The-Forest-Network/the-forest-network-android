@@ -12,6 +12,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.graphics.toArgb
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTab
 
@@ -20,10 +21,11 @@ import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTa
 fun OpenUrlInTabView(url: MutableState<String?>) {
     val activity = requireNotNull(LocalActivity.current)
     val darkTheme = ElementTheme.isLightTheme.not()
+    val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
 
     LaunchedEffect(url.value) {
         url.value?.let {
-            activity.openUrlInChromeCustomTab(null, darkTheme, it)
+            activity.openUrlInChromeCustomTab(null, darkTheme, it, toolbarColor)
             url.value = null
         }
     }

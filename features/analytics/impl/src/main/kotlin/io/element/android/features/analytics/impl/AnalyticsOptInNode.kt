@@ -12,6 +12,7 @@ import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
 import com.bumble.appyx.core.plugin.Plugin
@@ -30,19 +31,20 @@ class AnalyticsOptInNode(
     @Assisted plugins: List<Plugin>,
     private val presenter: AnalyticsOptInPresenter,
 ) : Node(buildContext, plugins = plugins) {
-    private fun onClickTerms(activity: Activity, darkTheme: Boolean) {
-        activity.openUrlInChromeCustomTab(null, darkTheme, AnalyticsConfig.POLICY_LINK)
+    private fun onClickTerms(activity: Activity, darkTheme: Boolean, toolbarColor: Int) {
+        activity.openUrlInChromeCustomTab(null, darkTheme, AnalyticsConfig.POLICY_LINK, toolbarColor)
     }
 
     @Composable
     override fun View(modifier: Modifier) {
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
+        val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
         val state = presenter.present()
         AnalyticsOptInView(
             state = state,
             modifier = modifier,
-            onClickTerms = { onClickTerms(activity, isDark) },
+            onClickTerms = { onClickTerms(activity, isDark, toolbarColor) },
         )
     }
 }

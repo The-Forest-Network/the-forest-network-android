@@ -12,6 +12,7 @@ import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
 import com.bumble.appyx.core.plugin.Plugin
@@ -39,21 +40,23 @@ class AboutNode(
     private fun onElementLegalClick(
         activity: Activity,
         darkTheme: Boolean,
+        toolbarColor: Int,
         elementLegal: ElementLegal,
     ) {
-        activity.openUrlInChromeCustomTab(null, darkTheme, elementLegal.url)
+        activity.openUrlInChromeCustomTab(null, darkTheme, elementLegal.url, toolbarColor)
     }
 
     @Composable
     override fun View(modifier: Modifier) {
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
+        val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
         val state = presenter.present()
         AboutView(
             state = state,
             onBackClick = ::navigateUp,
             onElementLegalClick = { elementLegal ->
-                onElementLegalClick(activity, isDark, elementLegal)
+                onElementLegalClick(activity, isDark, toolbarColor, elementLegal)
             },
             onOpenSourceLicensesClick = callback::navigateToOssLicenses,
             modifier = modifier

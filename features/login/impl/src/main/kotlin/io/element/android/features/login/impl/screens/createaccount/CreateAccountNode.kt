@@ -12,6 +12,7 @@ import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
 import com.bumble.appyx.core.plugin.Plugin
@@ -37,21 +38,22 @@ class CreateAccountNode(
 
     private val presenter = presenterFactory.create(inputs<Inputs>().url)
 
-    private fun onOpenExternalUrl(activity: Activity, darkTheme: Boolean, url: String) {
-        activity.openUrlInChromeCustomTab(null, darkTheme, url)
+    private fun onOpenExternalUrl(activity: Activity, darkTheme: Boolean, toolbarColor: Int, url: String) {
+        activity.openUrlInChromeCustomTab(null, darkTheme, url, toolbarColor)
     }
 
     @Composable
     override fun View(modifier: Modifier) {
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
+        val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
         val state = presenter.present()
         CreateAccountView(
             state = state,
             modifier = modifier,
             onBackClick = ::navigateUp,
             onOpenExternalUrl = {
-                onOpenExternalUrl(activity, isDark, it)
+                onOpenExternalUrl(activity, isDark, toolbarColor, it)
             },
         )
     }

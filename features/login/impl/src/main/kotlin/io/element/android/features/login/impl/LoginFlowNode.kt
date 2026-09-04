@@ -14,6 +14,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
 import com.bumble.appyx.core.lifecycle.subscribe
 import com.bumble.appyx.core.modality.BuildContext
@@ -85,6 +86,7 @@ class LoginFlowNode(
     private val callback: LoginEntryPoint.Callback = callback()
     private var activity: Activity? = null
     private var darkTheme: Boolean = false
+    private var toolbarColor: Int = 0
 
     private var externalAppStarted = false
 
@@ -336,7 +338,7 @@ class LoginFlowNode(
     private fun navigateToMas(oAuthDetails: OAuthDetails) {
         activity?.let {
             externalAppStarted = true
-            it.openUrlInChromeCustomTab(null, darkTheme, oAuthDetails.url)
+            it.openUrlInChromeCustomTab(null, darkTheme, oAuthDetails.url, toolbarColor)
         }
     }
 
@@ -344,6 +346,7 @@ class LoginFlowNode(
     override fun View(modifier: Modifier) {
         activity = requireNotNull(LocalActivity.current)
         darkTheme = !ElementTheme.isLightTheme
+        toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
 
         DisposableEffect(Unit) {
             elementClassicConnection.start()

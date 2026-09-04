@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bumble.appyx.core.lifecycle.subscribe
@@ -161,6 +162,7 @@ class ThreadedMessagesNode(
     private fun onLinkClick(
         activity: Activity,
         darkTheme: Boolean,
+        toolbarColor: Int,
         url: String,
         eventSink: (TimelineEvent) -> Unit,
         customTab: Boolean
@@ -176,13 +178,13 @@ class ThreadedMessagesNode(
             }
             is PermalinkData.FallbackLink -> {
                 if (customTab) {
-                    activity.openUrlInChromeCustomTab(null, darkTheme, url)
+                    activity.openUrlInChromeCustomTab(null, darkTheme, url, toolbarColor)
                 } else {
                     activity.openUrlInExternalApp(url)
                 }
             }
             is PermalinkData.RoomEmailInviteLink -> {
-                activity.openUrlInChromeCustomTab(null, darkTheme, url)
+                activity.openUrlInChromeCustomTab(null, darkTheme, url, toolbarColor)
             }
         }
     }
@@ -255,6 +257,7 @@ class ThreadedMessagesNode(
     override fun View(modifier: Modifier) {
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
+        val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
         val canUseOverlay = !isTalkbackActive() && !hasExternalKeyboard()
         CompositionLocalProvider(
             LocalTimelineItemPresenterFactories provides timelineItemPresenterFactories,
@@ -291,6 +294,7 @@ class ThreadedMessagesNode(
                         onLinkClick(
                             activity = activity,
                             darkTheme = isDark,
+                            toolbarColor = toolbarColor,
                             url = url,
                             eventSink = state.timelineState.eventSink,
                             customTab = customTab,

@@ -12,6 +12,7 @@ import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
 import com.bumble.appyx.core.plugin.Plugin
@@ -58,12 +59,14 @@ class PreferencesRootNode(
         activity: Activity,
         url: String?,
         isDark: Boolean,
+        toolbarColor: Int,
     ) {
         url?.let {
             activity.openUrlInChromeCustomTab(
                 null,
                 darkTheme = isDark,
-                url = it
+                url = it,
+                toolbarColor = toolbarColor,
             )
         }
     }
@@ -73,6 +76,7 @@ class PreferencesRootNode(
         val state = presenter.present()
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
+        val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
         PreferencesRootView(
             state = state,
             modifier = modifier,
@@ -86,7 +90,7 @@ class PreferencesRootNode(
             onOpenAdvancedSettings = callback::navigateToAdvancedSettings,
             onOpenLabs = callback::navigateToLabs,
             onLinkNewDeviceClick = callback::navigateToLinkNewDevice,
-            onManageAccountClick = { onManageAccountClick(activity, it, isDark) },
+            onManageAccountClick = { onManageAccountClick(activity, it, isDark, toolbarColor) },
             onOpenNotificationSettings = callback::navigateToNotificationSettings,
             onOpenLockScreenSettings = callback::navigateToLockScreenSettings,
             onOpenUserProfile = callback::navigateToUserProfile,

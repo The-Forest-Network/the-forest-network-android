@@ -12,6 +12,7 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.os.Bundle
 import android.provider.Browser
+import androidx.annotation.ColorInt
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsSession
@@ -27,14 +28,19 @@ import java.util.Locale
 fun Activity.openUrlInChromeCustomTab(
     session: CustomTabsSession?,
     darkTheme: Boolean,
-    url: String
+    url: String,
+    @ColorInt toolbarColor: Int? = null,
 ) {
     try {
         CustomTabsIntent.Builder()
             .setDefaultColorSchemeParams(
                 CustomTabColorSchemeParams.Builder()
-                    // TODO .setToolbarColor(ThemeUtils.getColor(context, android.R.attr.colorBackground))
-                    // TODO .setNavigationBarColor(ThemeUtils.getColor(context, android.R.attr.colorBackground))
+                    .apply {
+                        if (toolbarColor != null) {
+                            setToolbarColor(toolbarColor)
+                            setNavigationBarColor(toolbarColor)
+                        }
+                    }
                     .build()
             )
             .setColorScheme(
