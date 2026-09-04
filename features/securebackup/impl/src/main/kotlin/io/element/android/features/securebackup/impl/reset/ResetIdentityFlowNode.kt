@@ -166,7 +166,7 @@ class ResetIdentityFlowNode(
             activity = requireNotNull(LocalActivity.current)
         }
         darkTheme = !ElementTheme.isLightTheme
-        toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
+        toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
         val startResetState by resetIdentityFlowManager.currentHandleFlow.collectAsState()
         if (startResetState.isLoading()) {
             ProgressDialog(

@@ -70,7 +70,7 @@ class OnBoardingNode(
         val context = LocalContext.current
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
-        val toolbarColor = android.graphics.Color.RED // TEMP: loud color to verify Custom Tab theming actually applies, revert before merge
+        val toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
 
         OnBoardingView(
             state = state,

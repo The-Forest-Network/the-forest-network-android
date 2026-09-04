@@ -21,7 +21,7 @@ import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTa
 fun OpenUrlInTabView(url: MutableState<String?>) {
     val activity = requireNotNull(LocalActivity.current)
     val darkTheme = ElementTheme.isLightTheme.not()
-    val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
+    val toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
 
     LaunchedEffect(url.value) {
         url.value?.let {

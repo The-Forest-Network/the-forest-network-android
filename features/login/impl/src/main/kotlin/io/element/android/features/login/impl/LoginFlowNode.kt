@@ -346,7 +346,7 @@ class LoginFlowNode(
     override fun View(modifier: Modifier) {
         activity = requireNotNull(LocalActivity.current)
         darkTheme = !ElementTheme.isLightTheme
-        toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
+        toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
 
         DisposableEffect(Unit) {
             elementClassicConnection.start()

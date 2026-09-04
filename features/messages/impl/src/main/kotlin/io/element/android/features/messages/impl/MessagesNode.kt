@@ -256,7 +256,7 @@ class MessagesNode(
     override fun View(modifier: Modifier) {
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
-        val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
+        val toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
         val canUseOverlay = !isTalkbackActive() && !hasExternalKeyboard()
         CompositionLocalProvider(
             LocalTimelineItemPresenterFactories provides timelineItemPresenterFactories,

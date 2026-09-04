@@ -76,7 +76,7 @@ class PreferencesRootNode(
         val state = presenter.present()
         val activity = requireNotNull(LocalActivity.current)
         val isDark = ElementTheme.isLightTheme.not()
-        val toolbarColor = ElementTheme.colors.bgCanvasDefault.toArgb()
+        val toolbarColor = ElementTheme.colors.bgAccentRest.toArgb()
         PreferencesRootView(
             state = state,
             modifier = modifier,
