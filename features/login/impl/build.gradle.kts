@@ -1,3 +1,4 @@
+import config.BuildTimeConfig
 import extension.buildConfigFieldStr
 import extension.setupDependencyInjection
 import extension.testCommonDependencies
@@ -27,6 +28,20 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+
+    defaultConfig {
+        buildConfigFieldStr(
+            name = "URL_REQUEST_ACCOUNT",
+            value = BuildTimeConfig.URL_REQUEST_ACCOUNT ?: "https://element.io",
+        )
+    }
+
+    lint {
+        // Pre-existing StringFormatCount errors from Forest Network's branded onboarding
+        // strings losing their %1$s placeholder while untranslated locales kept it. See
+        // https://github.com/The-Forest-Network/the-forest-network-android/issues/18
+        baseline = file("lint-baseline.xml")
     }
 
     buildTypes {

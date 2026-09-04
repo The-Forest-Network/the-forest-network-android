@@ -19,8 +19,7 @@ open class OnBoardingStateProvider : PreviewParameterProvider<OnBoardingState> {
         get() = sequenceOf(
             anOnBoardingState(),
             anOnBoardingState(canLoginWithQrCode = true),
-            anOnBoardingState(canLoginWithQrCode = true, canReportBug = true),
-            anOnBoardingState(defaultAccountProvider = "element.io", canReportBug = true),
+            anOnBoardingState(defaultAccountProvider = "element.io"),
             anOnBoardingState(customLogoResId = R.drawable.sample_background),
             anOnBoardingState(
                 isAddingAccount = true,
