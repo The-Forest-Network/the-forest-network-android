@@ -124,6 +124,19 @@ class OnBoardingPresenter(
                         )
                     )
                 }
+                is OnBoardingEvent.OnCreateAccount -> localCoroutineScope.launch {
+                    accountProviderDataSource.setUrl(event.defaultAccountProvider)
+                    loginModeState.eventSink(
+                        LoginModeEvent.Submit(
+                            isAccountCreation = true,
+                            homeserverUrl = event.defaultAccountProvider,
+                            resolvedHomeserverUrl = null,
+                            loginHint = null,
+                            // Already resolved to gate canCreateAccount above; reuse it instead of a second setHomeserver call.
+                            preConfiguredDetails = forcedHomeserverDetails,
+                        )
+                    )
+                }
                 OnBoardingEvent.ClearError -> loginModeState.eventSink(LoginModeEvent.ClearError)
                 OnBoardingEvent.OnVersionClick -> {
                     if (canReportBug) {

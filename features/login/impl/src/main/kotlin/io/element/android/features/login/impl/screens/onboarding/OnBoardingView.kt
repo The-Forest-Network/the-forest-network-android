@@ -294,9 +294,23 @@ private fun OnBoardingButtons(
             )
         }
         if (state.canCreateAccount) {
+            // When locked to a single forced homeserver, defaultAccountProvider is that homeserver:
+            // submit registration directly rather than navigating to the account-provider
+            // confirmation screen, since there's no provider to confirm. Only that direct-submit
+            // path has a network round-trip to show loading/disabled state for; the navigation-only
+            // path (unlocked, multiple providers) stays a plain always-enabled button.
+            val forcedAccountProvider = state.defaultAccountProvider
             TextButton(
                 text = stringResource(id = R.string.screen_onboarding_sign_up),
-                onClick = onCreateAccount,
+                showProgress = forcedAccountProvider != null && isLoading,
+                onClick = {
+                    if (forcedAccountProvider != null) {
+                        state.eventSink(OnBoardingEvent.OnCreateAccount(forcedAccountProvider))
+                    } else {
+                        onCreateAccount()
+                    }
+                },
+                enabled = forcedAccountProvider == null || state.submitEnabled || isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
             )

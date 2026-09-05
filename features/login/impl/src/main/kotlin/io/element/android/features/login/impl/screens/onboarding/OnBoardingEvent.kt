@@ -13,6 +13,13 @@ sealed interface OnBoardingEvent {
         val defaultAccountProvider: String
     ) : OnBoardingEvent
 
+    // Only emitted when locked to a single forced homeserver: skips the account-provider
+    // confirmation screen and submits registration directly, since there is no provider choice
+    // to confirm.
+    data class OnCreateAccount(
+        val defaultAccountProvider: String
+    ) : OnBoardingEvent
+
     data object OnVersionClick : OnBoardingEvent
     data object ClearError : OnBoardingEvent
 }
