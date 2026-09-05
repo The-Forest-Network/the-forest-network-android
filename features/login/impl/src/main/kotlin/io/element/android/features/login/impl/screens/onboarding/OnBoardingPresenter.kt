@@ -31,6 +31,8 @@ import io.element.android.features.rageshake.api.RageshakeFeatureAvailability
 import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.core.meta.BuildMeta
 import io.element.android.libraries.core.meta.BuildType
+import io.element.android.libraries.matrix.api.auth.MatrixAuthenticationService
+import io.element.android.libraries.matrix.api.auth.MatrixHomeServerDetails
 import io.element.android.libraries.sessionstorage.api.SessionStore
 import io.element.android.libraries.ui.utils.MultipleTapToUnlock
 import kotlinx.coroutines.launch
@@ -46,6 +48,7 @@ class OnBoardingPresenter(
     private val onBoardingLogoResIdProvider: OnBoardingLogoResIdProvider,
     private val sessionStore: SessionStore,
     private val accountProviderDataSource: AccountProviderDataSource,
+    private val authenticationService: MatrixAuthenticationService,
 ) : Presenter<OnBoardingState> {
     @AssistedFactory
     interface Factory {
@@ -66,6 +69,12 @@ class OnBoardingPresenter(
         }
         val canConnectToAnyHomeserver = remember {
             enterpriseService.canConnectToAnyHomeserver()
+        }
+        // When locked to a single forced homeserver, whether "Create account" can be offered depends on
+        // whether *that* homeserver supports OAuth registration, not on canConnectToAnyHomeserver (which is
+        // always false in this case and says nothing about the forced homeserver's own capabilities).
+        val forcedHomeserverDetails by produceState<MatrixHomeServerDetails?>(initialValue = null, forcedAccountProvider) {
+            value = forcedAccountProvider?.let { authenticationService.setHomeserver(it).getOrNull() }
         }
         val mustChooseAccountProvider = remember {
             !canConnectToAnyHomeserver && enterpriseService.homeserverAllowList().size > 1
@@ -134,7 +143,11 @@ class OnBoardingPresenter(
             defaultAccountProvider = defaultAccountProvider,
             mustChooseAccountProvider = mustChooseAccountProvider,
             canLoginWithQrCode = canLoginWithQrCode,
-            canCreateAccount = defaultAccountProvider == null && canConnectToAnyHomeserver && OnBoardingConfig.CAN_CREATE_ACCOUNT,
+            canCreateAccount = OnBoardingConfig.CAN_CREATE_ACCOUNT && if (forcedAccountProvider != null) {
+                forcedHomeserverDetails?.supportsOAuthLogin == true
+            } else {
+                defaultAccountProvider == null && canConnectToAnyHomeserver
+            },
             canReportBug = canReportBug && showReportBug,
             loginModeState = loginModeState,
             version = buildMeta.versionName,
