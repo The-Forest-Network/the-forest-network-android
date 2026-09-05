@@ -256,7 +256,7 @@ class RustMatrixAuthenticationService(
                         )
                     }
                 pendingOAuthAuthorizationData = oAuthAuthorizationData
-                OAuthDetails(url)
+                OAuthDetails(url = url, isAccountCreation = prompt == OAuthPrompt.Create)
             }.mapFailure { failure ->
                 Timber.e(failure, "Failed to get OAuth URL")
                 failure.mapAuthenticationException()

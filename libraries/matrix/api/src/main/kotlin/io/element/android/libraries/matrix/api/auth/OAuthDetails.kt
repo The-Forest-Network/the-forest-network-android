@@ -14,4 +14,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class OAuthDetails(
     val url: String,
+    // Whether this URL was requested with the `create` prompt (account registration) rather than login.
+    val isAccountCreation: Boolean = false,
 ) : Parcelable
