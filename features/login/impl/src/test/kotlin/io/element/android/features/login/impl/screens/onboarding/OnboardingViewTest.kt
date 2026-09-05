@@ -148,7 +148,7 @@ class OnboardingViewTest : RobolectricTestParameter() {
     }
 
     @Test
-    fun `when create account is offered for a pre defined account provider - clicking on button emits the expected event and does not navigate`() = runAndroidComposeUiTest {
+    fun `when create account is offered for a pre defined account provider - clicking on button emits the expected event`() = runAndroidComposeUiTest {
         val eventSink = EventsRecorder<OnBoardingEvent>()
         setOnboardingView(
             state = anOnBoardingState(
