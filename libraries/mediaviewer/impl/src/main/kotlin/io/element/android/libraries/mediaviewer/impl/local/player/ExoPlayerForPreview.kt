@@ -258,7 +258,7 @@ class ExoPlayerForPreview(
     override fun setPriorityTaskManager(priorityTaskManager: PriorityTaskManager?) {}
     override fun isSleepingForOffload(): Boolean = throw NotImplementedError()
     override fun isTunnelingEnabled(): Boolean = throw NotImplementedError()
-    override fun isReleased(): Boolean = throw NotImplementedError()
+    override fun isReleased(): Boolean = false
     override fun setImageOutput(imageOutput: ImageOutput?) {}
     override fun setAudioCodecParameters(codecParameters: CodecParameters) {}
     override fun addAudioCodecParametersChangeListener(listener: CodecParametersChangeListener, keys: List<String>) {}
@@ -266,4 +266,5 @@ class ExoPlayerForPreview(
     override fun setVideoCodecParameters(codecParameters: CodecParameters) {}
     override fun addVideoCodecParametersChangeListener(listener: CodecParametersChangeListener, keys: List<String>) {}
     override fun removeVideoCodecParametersChangeListener(listener: CodecParametersChangeListener) {}
+    override fun setEnforceAdPlaybackOnTimelineRefresh(enforceAdPlaybackOnTimelineRefresh: Boolean) = throw NotImplementedError()
 }

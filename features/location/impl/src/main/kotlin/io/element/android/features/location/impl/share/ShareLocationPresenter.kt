@@ -22,17 +22,19 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import im.vector.app.features.analytics.plan.Composer
+import io.element.android.features.enterprise.api.remoteconfig.CustomMapTilerConfigProvider
 import io.element.android.features.location.api.live.ActiveLiveLocationShareManager
 import io.element.android.features.location.impl.common.LocationConstraintsCheck
 import io.element.android.features.location.impl.common.MapDefaults
 import io.element.android.features.location.impl.common.SendLiveLocationPermissions
 import io.element.android.features.location.impl.common.actions.LocationActions
 import io.element.android.features.location.impl.common.checkLocationConstraints
-import io.element.android.features.location.impl.common.permissions.PermissionsEvents
+import io.element.android.features.location.impl.common.permissions.PermissionsEvent
 import io.element.android.features.location.impl.common.permissions.PermissionsPresenter
 import io.element.android.features.location.impl.common.permissions.PermissionsState
 import io.element.android.features.location.impl.common.sendLiveLocationPermissions
 import io.element.android.features.location.impl.common.toDialogState
+import io.element.android.features.location.impl.common.userlocation.UserLocationState
 import io.element.android.features.location.impl.live.LiveLocationStore
 import io.element.android.features.messages.api.MessageComposerContext
 import io.element.android.libraries.architecture.AsyncAction
@@ -70,6 +72,8 @@ class ShareLocationPresenter(
     private val durationFormatter: DurationFormatter,
     private val liveLocationShareManager: ActiveLiveLocationShareManager,
     private val liveLocationStore: LiveLocationStore,
+    private val userLocationStateFactory: UserLocationState.Factory,
+    private val customMapTilerConfigProvider: CustomMapTilerConfigProvider,
 ) : Presenter<ShareLocationState> {
     @AssistedFactory
     fun interface Factory {
@@ -86,11 +90,13 @@ class ShareLocationPresenter(
         var dialogState: ShareLocationState.Dialog by remember {
             mutableStateOf(ShareLocationState.Dialog.None)
         }
+        // true when trying to initiate the live location share
+        var pendingLiveLocationShare by remember { mutableStateOf(false) }
         val startLiveLocationAction = remember { mutableStateOf<AsyncAction<Unit>>(AsyncAction.Uninitialized) }
         val currentUser by client.userProfile.collectAsState()
-        val customMapStyleUrl by produceState(AsyncData.Loading()) {
+        val customMapConfig by produceState(AsyncData.Loading()) {
             // Ignore errors
-            value = AsyncData.Success(client.getMapStyleUrl().getOrNull())
+            value = AsyncData.Success(customMapTilerConfigProvider.get().getOrNull())
         }
         val sendLiveLocationPermissions by room.permissionsAsState(SendLiveLocationPermissions.DEFAULT) { perms ->
             perms.sendLiveLocationPermissions()
@@ -98,32 +104,55 @@ class ShareLocationPresenter(
         val scope = rememberCoroutineScope()
 
         fun checkLocationConstraints() {
-            // No need to check SendLiveLocationPermissions here
-            val locationConstraints = checkLocationConstraints(permissionsState, locationActions, SendLiveLocationPermissions.GRANTED)
+            val locationConstraints = checkLocationConstraints(
+                permissionsState = permissionsState,
+                locationActions = locationActions,
+                // No need to check SendLiveLocationPermissions here
+                sendLiveLocationPermissions = SendLiveLocationPermissions.GRANTED
+            )
+            if (locationConstraints is LocationConstraintsCheck.PermissionShouldBeRequested) {
+                permissionsState.eventSink(PermissionsEvent.RequestPermissions)
+            }
             trackUserPosition = locationConstraints is LocationConstraintsCheck.Success
             dialogState = ShareLocationState.Dialog.Constraints(locationConstraints.toDialogState())
         }
 
-        suspend fun computeLiveLocationDialogState(): ShareLocationState.Dialog {
-            val hasAcceptedDisclaimer = liveLocationStore.hasAcceptedLiveLocationDisclaimer()
-            val constraintsResult = checkLocationConstraints(permissionsState, locationActions, sendLiveLocationPermissions)
-            return when {
-                !hasAcceptedDisclaimer -> {
-                    ShareLocationState.Dialog.LiveLocationDisclaimer
-                }
-                constraintsResult is LocationConstraintsCheck.Success -> {
-                    val durations = LIVE_LOCATION_DURATIONS.map {
-                        LiveLocationDuration(duration = it, formatted = durationFormatter.format(it))
+        suspend fun checkLiveLocationConstraints() {
+            val locationConstraints = checkLocationConstraints(
+                permissionsState = permissionsState,
+                locationActions = locationActions,
+                sendLiveLocationPermissions = sendLiveLocationPermissions,
+            )
+            when (locationConstraints) {
+                LocationConstraintsCheck.Success -> {
+                    val hasAcceptedDisclaimer = liveLocationStore.hasAcceptedLiveLocationDisclaimer()
+                    dialogState = if (!hasAcceptedDisclaimer) {
+                        ShareLocationState.Dialog.LiveLocationDisclaimer
+                    } else {
+                        val durations = LIVE_LOCATION_DURATIONS.map {
+                            LiveLocationDuration(duration = it, formatted = durationFormatter.format(it))
+                        }
+                        ShareLocationState.Dialog.LiveLocationDurations(durations.toImmutableList())
                     }
-                    ShareLocationState.Dialog.LiveLocationDurations(durations.toImmutableList())
                 }
                 else -> {
-                    ShareLocationState.Dialog.Constraints(constraintsResult.toDialogState())
+                    if (locationConstraints is LocationConstraintsCheck.PermissionShouldBeRequested) {
+                        permissionsState.eventSink(PermissionsEvent.RequestPermissions)
+                    }
+                    dialogState = ShareLocationState.Dialog.Constraints(locationConstraints.toDialogState())
                 }
             }
         }
 
-        LaunchedEffect(permissionsState.permissions) { checkLocationConstraints() }
+        val userLocationState = userLocationStateFactory.create(permissionsState.isAnyGranted)
+
+        LaunchedEffect(permissionsState) {
+            if (pendingLiveLocationShare) {
+                checkLiveLocationConstraints()
+            } else {
+                checkLocationConstraints()
+            }
+        }
 
         fun handleEvent(event: ShareLocationEvent) {
             when (event) {
@@ -132,7 +161,10 @@ class ShareLocationPresenter(
                 }
                 ShareLocationEvent.StartTrackingUserLocation -> checkLocationConstraints()
                 ShareLocationEvent.StopTrackingUserLocation -> trackUserPosition = false
-                ShareLocationEvent.DismissDialog -> dialogState = ShareLocationState.Dialog.None
+                ShareLocationEvent.DismissDialog -> {
+                    pendingLiveLocationShare = false
+                    dialogState = ShareLocationState.Dialog.None
+                }
                 ShareLocationEvent.OpenAppSettings -> {
                     locationActions.openAppSettings()
                     dialogState = ShareLocationState.Dialog.None
@@ -142,15 +174,17 @@ class ShareLocationPresenter(
                     dialogState = ShareLocationState.Dialog.None
                 }
                 ShareLocationEvent.InitiateLiveLocationShare -> scope.launch {
-                    dialogState = computeLiveLocationDialogState()
+                    pendingLiveLocationShare = true
+                    checkLiveLocationConstraints()
                 }
                 ShareLocationEvent.AcceptLiveLocationDisclaimer -> scope.launch {
                     liveLocationStore.setAcceptedLiveLocationDisclaimer()
                         .onSuccess {
-                            dialogState = computeLiveLocationDialogState()
+                            checkLiveLocationConstraints()
                         }
                 }
                 is ShareLocationEvent.StartLiveLocationShare -> scope.launch {
+                    pendingLiveLocationShare = false
                     dialogState = ShareLocationState.Dialog.None
                     startLiveLocationAction.runUpdatingState {
                         liveLocationShareManager.startShare(
@@ -161,17 +195,17 @@ class ShareLocationPresenter(
                 }
                 ShareLocationEvent.RequestPermissions -> {
                     dialogState = ShareLocationState.Dialog.None
-                    permissionsState.eventSink(PermissionsEvents.RequestPermissions)
+                    permissionsState.eventSink(PermissionsEvent.RequestPermissions)
                 }
             }
         }
 
         return ShareLocationState(
-            customMapStyleUrl = customMapStyleUrl,
+            customMapTilerConfig = customMapConfig,
             currentUser = currentUser,
             dialogState = dialogState,
             trackUserLocation = trackUserPosition,
-            hasLocationPermission = permissionsState.isAnyGranted,
+            userLocationState = userLocationState,
             canShareLiveLocation = timelineMode.canShareLiveLocation(),
             appName = appName,
             startLiveLocationAction = startLiveLocationAction.value,

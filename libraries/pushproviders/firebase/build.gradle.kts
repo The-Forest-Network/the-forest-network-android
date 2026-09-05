@@ -8,9 +8,10 @@
 
 @file:Suppress("UnstableApiUsage")
 
-import config.BuildTimeConfig
 import extension.setupDependencyInjection
 import extension.testCommonDependencies
+import org.gradle.kotlin.dsl.withType
+import org.sonarqube.gradle.SonarResolverTask
 
 plugins {
     id("io.element.android-library")
@@ -19,32 +20,24 @@ plugins {
 android {
     namespace = "io.element.android.libraries.pushproviders.firebase"
 
+    buildFeatures {
+        resValues = true
+    }
+
     buildTypes {
         getByName("release") {
             consumerProguardFiles("consumer-proguard-rules.pro")
-            resValue(
-                type = "string",
-                name = "google_app_id",
-                value = BuildTimeConfig.GOOGLE_APP_ID_RELEASE,
-            )
-        }
-        getByName("debug") {
-            resValue(
-                type = "string",
-                name = "google_app_id",
-                value = BuildTimeConfig.GOOGLE_APP_ID_DEBUG,
-            )
         }
         register("nightly") {
             consumerProguardFiles("consumer-proguard-rules.pro")
             matchingFallbacks += listOf("release")
-            resValue(
-                type = "string",
-                name = "google_app_id",
-                value = BuildTimeConfig.GOOGLE_APP_ID_NIGHTLY,
-            )
         }
     }
+}
+
+// Configure the SonarQube plugin to wait for the resource generation tasks to complete before running the analysis.
+tasks.withType<SonarResolverTask>().configureEach {
+    dependsOn("generateDebugResValues", "generateDebugAndroidTestResValues")
 }
 
 setupDependencyInjection()

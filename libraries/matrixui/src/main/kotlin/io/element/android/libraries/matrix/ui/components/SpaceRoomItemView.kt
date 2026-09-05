@@ -78,7 +78,7 @@ fun SpaceRoomItemView(
             indication = ripple(),
             interactionSource = remember { MutableInteractionSource() }
         )
-        .onKeyboardContextMenuAction { onLongClick }
+        .onKeyboardContextMenuAction(onLongClick)
     Column(
         modifier = modifier
             .then(clickModifier)
@@ -210,7 +210,7 @@ private fun SpaceRoomItemScaffold(
 
 @Composable
 @PreviewsDayNight
-internal fun SpaceRoomItemViewPreview(@PreviewParameter(SpaceRoomProvider::class) spaceRoom: SpaceRoom) = ElementPreview {
+internal fun SpaceRoomItemViewPreview(@PreviewParameter(SpaceRoomPreviewParam::class) spaceRoom: SpaceRoom) = ElementPreview {
     SpaceRoomItemView(
         spaceRoom = spaceRoom,
         showUnreadIndicator = spaceRoom.state == CurrentUserMembership.INVITED,

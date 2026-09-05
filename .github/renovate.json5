@@ -7,7 +7,6 @@
     "PR-Dependencies",
   ],
   "ignoreDeps": [
-    "string:app_name",
     "gradle",
   ],
   "minimumReleaseAge": "7 days",
@@ -18,6 +17,8 @@
         "/^io.element.android/",
       ],
       "minimumReleaseAge": null,
+      // Max default value is 6, with this we give absolute priority to our own dependencies
+      "prPriority": 7,
     },
     {
       "groupName": "kotlin",

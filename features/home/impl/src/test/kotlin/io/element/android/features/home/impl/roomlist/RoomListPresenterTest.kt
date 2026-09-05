@@ -20,22 +20,26 @@ import io.element.android.features.home.impl.filters.aRoomListFiltersState
 import io.element.android.features.home.impl.model.createRoomListRoomSummary
 import io.element.android.features.home.impl.search.RoomListSearchEvent
 import io.element.android.features.home.impl.search.RoomListSearchState
+import io.element.android.features.home.impl.search.aGlobalSearchState
 import io.element.android.features.home.impl.search.aRoomListSearchState
 import io.element.android.features.home.impl.spacefilters.SpaceFiltersState
 import io.element.android.features.home.impl.spacefilters.aDisabledSpaceFiltersState
 import io.element.android.features.invite.api.SeenInvitesStore
-import io.element.android.features.invite.api.acceptdecline.AcceptDeclineInviteEvents
+import io.element.android.features.invite.api.acceptdecline.AcceptDeclineInviteEvent
 import io.element.android.features.invite.api.acceptdecline.AcceptDeclineInviteState
 import io.element.android.features.invite.api.acceptdecline.anAcceptDeclineInviteState
 import io.element.android.features.invite.test.InMemorySeenInvitesStore
 import io.element.android.features.leaveroom.api.LeaveRoomEvent
 import io.element.android.features.leaveroom.api.LeaveRoomState
+import io.element.android.features.preferences.impl.tasks.MarkRoomAsRead
 import io.element.android.features.rageshake.test.logs.FakeAnnouncementService
 import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.dateformatter.api.DateFormatter
 import io.element.android.libraries.dateformatter.test.FakeDateFormatter
 import io.element.android.libraries.eventformatter.api.RoomLatestEventFormatter
 import io.element.android.libraries.eventformatter.test.FakeRoomLatestEventFormatter
+import io.element.android.libraries.featureflag.api.FeatureFlagService
+import io.element.android.libraries.featureflag.test.FakeFeatureFlagService
 import io.element.android.libraries.fullscreenintent.api.aFullScreenIntentPermissionsState
 import io.element.android.libraries.matrix.api.MatrixClient
 import io.element.android.libraries.matrix.api.core.RoomId
@@ -61,9 +65,7 @@ import io.element.android.libraries.matrix.test.roomlist.FakeDynamicRoomList
 import io.element.android.libraries.matrix.test.roomlist.FakeRoomListService
 import io.element.android.libraries.matrix.test.sync.FakeSyncService
 import io.element.android.libraries.matrix.test.verification.FakeSessionVerificationService
-import io.element.android.libraries.preferences.api.store.AppPreferencesStore
 import io.element.android.libraries.preferences.api.store.SessionPreferencesStore
-import io.element.android.libraries.preferences.test.InMemoryAppPreferencesStore
 import io.element.android.libraries.preferences.test.InMemorySessionPreferencesStore
 import io.element.android.libraries.push.api.battery.aBatteryOptimizationState
 import io.element.android.libraries.push.api.notifications.NotificationCleaner
@@ -228,7 +230,6 @@ class RoomListPresenterTest {
                             isDm = false,
                             isFavorite = false,
                             hasNewContent = false,
-                            displayClearRoomCacheAction = false,
                         )
                     )
             }
@@ -245,35 +246,6 @@ class RoomListPresenterTest {
                             isDm = false,
                             isFavorite = true,
                             hasNewContent = false,
-                            displayClearRoomCacheAction = false,
-                        )
-                    )
-            }
-        }
-    }
-
-    @Test
-    fun `present - show context menu with view source on`() = runTest {
-        val presenter = createRoomListPresenter(
-            appPreferencesStore = InMemoryAppPreferencesStore(
-                isDeveloperModeEnabled = true,
-            )
-        )
-        presenter.test {
-            val initialState = awaitItem()
-            val summary = createRoomListRoomSummary()
-            initialState.eventSink(RoomListEvent.ShowContextMenu(summary))
-            awaitItem().also { state ->
-                assertThat(state.contextMenu)
-                    .isEqualTo(
-                        RoomListState.ContextMenu.Shown(
-                            roomId = summary.roomId,
-                            roomName = summary.name,
-                            isDm = false,
-                            isFavorite = false,
-                            // true here.
-                            hasNewContent = false,
-                            displayClearRoomCacheAction = true,
                         )
                     )
             }
@@ -301,7 +273,6 @@ class RoomListPresenterTest {
                         isDm = false,
                         isFavorite = false,
                         hasNewContent = false,
-                        displayClearRoomCacheAction = false,
                     )
                 )
 
@@ -458,11 +429,17 @@ class RoomListPresenterTest {
         val notificationCleaner = FakeNotificationCleaner(
             clearMessagesForRoomLambda = clearMessagesForRoomLambda,
         )
+        val markRoomAsRead = createTestMarkRoomAsRead(
+            client = matrixClient,
+            notificationCleaner = notificationCleaner,
+            sessionPreferencesStore = sessionPreferencesStore,
+        )
         val presenter = createRoomListPresenter(
             client = matrixClient,
             sessionPreferencesStore = sessionPreferencesStore,
             analyticsService = analyticsService,
             notificationCleaner = notificationCleaner,
+            markRoomAsRead = markRoomAsRead,
         )
         presenter.test {
             val initialState = awaitItem()
@@ -497,7 +474,7 @@ class RoomListPresenterTest {
 
     @Test
     fun `present - when a room is invited then accept and decline events are sent to acceptDeclinePresenter`() = runTest {
-        val eventSinkRecorder = lambdaRecorder { _: AcceptDeclineInviteEvents -> }
+        val eventSinkRecorder = lambdaRecorder { _: AcceptDeclineInviteEvent -> }
         val acceptDeclinePresenter = Presenter {
             anAcceptDeclineInviteState(eventSink = eventSinkRecorder)
         }
@@ -536,8 +513,8 @@ class RoomListPresenterTest {
             assert(eventSinkRecorder)
                 .isCalledExactly(2)
                 .withSequence(
-                    listOf(value(AcceptDeclineInviteEvents.AcceptInvite(inviteData))),
-                    listOf(value(AcceptDeclineInviteEvents.DeclineInvite(inviteData, blockUser = false, shouldConfirm = false))),
+                    listOf(value(AcceptDeclineInviteEvent.AcceptInvite(inviteData))),
+                    listOf(value(AcceptDeclineInviteEvent.DeclineInvite(inviteData, blockUser = false, shouldConfirm = false))),
                 )
         }
     }
@@ -654,6 +631,24 @@ class RoomListPresenterTest {
         }
     }
 
+    private fun createTestMarkRoomAsRead(
+        client: MatrixClient,
+        notificationCleaner: NotificationCleaner,
+        sessionPreferencesStore: SessionPreferencesStore,
+    ): MarkRoomAsRead = FakeMarkRoomAsRead { roomId ->
+        notificationCleaner.clearMessagesForRoom(client.sessionId, roomId)
+        val room = client.getRoom(roomId) ?: return@FakeMarkRoomAsRead Result.failure(IllegalStateException("Room not found"))
+        room.use {
+            it.setUnreadFlag(isUnread = false)
+            val receiptType = if (sessionPreferencesStore.isSendPublicReadReceiptsEnabled().first()) {
+                ReceiptType.READ
+            } else {
+                ReceiptType.READ_PRIVATE
+            }
+            it.markAsRead(receiptType)
+        }
+    }
+
     private fun TestScope.createRoomListPresenter(
         client: MatrixClient = FakeMatrixClient(),
         leaveRoomState: LeaveRoomState = aLeaveRoomState(),
@@ -666,9 +661,10 @@ class RoomListPresenterTest {
         spaceFiltersPresenter: Presenter<SpaceFiltersState> = Presenter { aDisabledSpaceFiltersState() },
         acceptDeclineInvitePresenter: Presenter<AcceptDeclineInviteState> = Presenter { anAcceptDeclineInviteState() },
         notificationCleaner: NotificationCleaner = FakeNotificationCleaner(),
-        appPreferencesStore: AppPreferencesStore = InMemoryAppPreferencesStore(),
         seenInvitesStore: SeenInvitesStore = InMemorySeenInvitesStore(),
         announcementService: AnnouncementService = FakeAnnouncementService(),
+        featureFlagService: FeatureFlagService = FakeFeatureFlagService(),
+        markRoomAsRead: MarkRoomAsRead? = null,
     ) = RoomListPresenter(
         client = client,
         leaveRoomPresenter = { leaveRoomState },
@@ -685,17 +681,21 @@ class RoomListPresenterTest {
             analyticsService = FakeAnalyticsService(),
         ),
         searchPresenter = searchPresenter,
-        sessionPreferencesStore = sessionPreferencesStore,
+        globalSearchPresenter = { aGlobalSearchState() },
         filtersPresenter = filtersPresenter,
         spaceFiltersPresenter = spaceFiltersPresenter,
         analyticsService = analyticsService,
         acceptDeclineInvitePresenter = acceptDeclineInvitePresenter,
         fullScreenIntentPermissionsPresenter = { aFullScreenIntentPermissionsState() },
         batteryOptimizationPresenter = { aBatteryOptimizationState() },
-        notificationCleaner = notificationCleaner,
-        appPreferencesStore = appPreferencesStore,
+        markRoomAsRead = markRoomAsRead ?: createTestMarkRoomAsRead(
+            client = client,
+            notificationCleaner = notificationCleaner,
+            sessionPreferencesStore = sessionPreferencesStore,
+        ),
         seenInvitesStore = seenInvitesStore,
         announcementService = announcementService,
         coldStartWatcher = FakeAnalyticsColdStartWatcher(),
+        featureFlagService = featureFlagService,
     )
 }

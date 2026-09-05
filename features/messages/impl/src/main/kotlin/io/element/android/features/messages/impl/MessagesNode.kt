@@ -39,11 +39,12 @@ import io.element.android.features.messages.impl.messagecomposer.MessageComposer
 import io.element.android.features.messages.impl.timeline.TimelineController
 import io.element.android.features.messages.impl.timeline.TimelineEvent
 import io.element.android.features.messages.impl.timeline.TimelinePresenter
+import io.element.android.features.messages.impl.timeline.components.customreaction.CustomReactionBottomSheet
 import io.element.android.features.messages.impl.timeline.di.LocalTimelineItemPresenterFactories
 import io.element.android.features.messages.impl.timeline.di.TimelineItemPresenterFactories
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
 import io.element.android.features.roommembermoderation.api.ModerationAction
-import io.element.android.features.roommembermoderation.api.RoomMemberModerationEvents
+import io.element.android.features.roommembermoderation.api.RoomMemberModerationEvent
 import io.element.android.features.roommembermoderation.api.RoomMemberModerationRenderer
 import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTab
 import io.element.android.libraries.androidutils.system.openUrlInExternalApp
@@ -55,6 +56,7 @@ import io.element.android.libraries.designsystem.utils.OnLifecycleEvent
 import io.element.android.libraries.di.RoomScope
 import io.element.android.libraries.di.annotations.ApplicationContext
 import io.element.android.libraries.di.annotations.SessionCoroutineScope
+import io.element.android.libraries.emoji.api.picker.EmojiPickerRenderer
 import io.element.android.libraries.matrix.api.analytics.toAnalyticsViewRoom
 import io.element.android.libraries.matrix.api.core.EventId
 import io.element.android.libraries.matrix.api.core.RoomId
@@ -67,6 +69,9 @@ import io.element.android.libraries.matrix.api.room.JoinedRoom
 import io.element.android.libraries.matrix.api.room.alias.matches
 import io.element.android.libraries.matrix.api.timeline.Timeline
 import io.element.android.libraries.matrix.api.timeline.item.TimelineItemDebugInfo
+import io.element.android.libraries.matrix.ui.media.contentvalidation.EventContentValidationCache
+import io.element.android.libraries.matrix.ui.media.contentvalidation.LocalEventContentValidationState
+import io.element.android.libraries.matrix.ui.model.getBestName
 import io.element.android.libraries.mediaplayer.api.MediaPlayer
 import io.element.android.libraries.ui.strings.CommonStrings
 import io.element.android.libraries.ui.utils.a11y.hasExternalKeyboard
@@ -97,6 +102,8 @@ class MessagesNode(
     private val permalinkParser: PermalinkParser,
     private val knockRequestsBannerRenderer: KnockRequestsBannerRenderer,
     private val roomMemberModerationRenderer: RoomMemberModerationRenderer,
+    private val eventContentValidationCache: EventContentValidationCache,
+    private val emojiPickerRenderer: EmojiPickerRenderer,
 ) : Node(buildContext, plugins = plugins), MessagesNavigator {
     data class Inputs(
         val focusedEventId: EventId?,
@@ -108,7 +115,7 @@ class MessagesNode(
     private val timelineController = TimelineController(room, room.liveTimeline)
     private val presenter = presenterFactory.create(
         navigator = this,
-        composerPresenter = messageComposerPresenterFactory.create(timelineController, this, isInThread = false),
+        composerPresenter = messageComposerPresenterFactory.create(timelineController, this, threadRoot = null),
         timelinePresenter = timelinePresenterFactory.create(timelineController = timelineController, this),
         actionListPresenter = actionListPresenterFactory.create(
             postProcessor = TimelineItemActionPostProcessor.Default,
@@ -119,6 +126,7 @@ class MessagesNode(
 
     interface Callback : Plugin {
         fun handleEventClick(timelineMode: Timeline.Mode, event: TimelineItem.Event, canUseOverlay: Boolean): Boolean
+        fun handleGalleryItemClick(timelineMode: Timeline.Mode, event: TimelineItem.Event, galleryItemIndex: Int, canUseOverlay: Boolean): Boolean
         fun navigateToPreviewAttachments(attachments: ImmutableList<Attachment>, inReplyToEventId: EventId?)
         fun navigateToRoomMemberDetails(userId: UserId)
         fun handlePermalinkClick(data: PermalinkData)
@@ -137,6 +145,8 @@ class MessagesNode(
         fun navigateToDeveloperSettings()
 
         fun navigateToThreadsList()
+
+        fun navigateToAvatarPreview(username: String, avatarUrl: String)
     }
 
     override fun onBuilt() {
@@ -260,6 +270,7 @@ class MessagesNode(
         val canUseOverlay = !isTalkbackActive() && !hasExternalKeyboard()
         CompositionLocalProvider(
             LocalTimelineItemPresenterFactories provides timelineItemPresenterFactories,
+            LocalEventContentValidationState provides eventContentValidationCache,
         ) {
             val state = presenter.present()
 
@@ -289,6 +300,18 @@ class MessagesNode(
                         }
                     }
                 },
+                onGalleryEventItemClick = { isLive, event, index ->
+                    if (isLive) {
+                        callback.handleGalleryItemClick(timelineController.mainTimelineMode(), event, index, canUseOverlay)
+                    } else {
+                        val detachedTimelineMode = timelineController.detachedTimelineMode()
+                        if (detachedTimelineMode != null) {
+                            callback.handleGalleryItemClick(detachedTimelineMode, event, index, canUseOverlay)
+                        } else {
+                            false
+                        }
+                    }
+                },
                 onUserDataClick = callback::navigateToRoomMemberDetails,
                 onLinkClick = { url, customTab ->
                     onLinkClick(
@@ -313,6 +336,15 @@ class MessagesNode(
                         onViewRequestsClick = callback::navigateToKnockRequestsList,
                     )
                 },
+                customReactionBottomSheet = {
+                    CustomReactionBottomSheet(
+                        state = state.customReactionState,
+                        onSelectEmoji = { uniqueId, emoji ->
+                            state.eventSink(MessagesEvent.ToggleReaction(emoji.unicode, uniqueId))
+                        },
+                        emojiPickerRenderer = emojiPickerRenderer,
+                    )
+                },
                 onThreadsListClick = callback::navigateToThreadsList,
             )
             roomMemberModerationRenderer.Render(
@@ -320,7 +352,12 @@ class MessagesNode(
                 onSelectAction = { action, target ->
                     when (action) {
                         is ModerationAction.DisplayProfile -> callback.navigateToRoomMemberDetails(target.userId)
-                        else -> state.roomMemberModerationState.eventSink(RoomMemberModerationEvents.ProcessAction(action, target))
+                        else -> state.roomMemberModerationState.eventSink(RoomMemberModerationEvent.ProcessAction(action, target))
+                    }
+                },
+                onAvatarClick = { user ->
+                    user.avatarUrl?.let { url ->
+                        callback.navigateToAvatarPreview(user.getBestName(), url)
                     }
                 },
                 modifier = Modifier,

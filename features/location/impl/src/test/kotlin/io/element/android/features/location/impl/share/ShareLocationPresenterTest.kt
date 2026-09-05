@@ -19,11 +19,14 @@ import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import im.vector.app.features.analytics.plan.Composer
+import io.element.android.features.enterprise.api.remoteconfig.MapTilerConfig
+import io.element.android.features.enterprise.test.remoteconfig.aMapTilerConfig
 import io.element.android.features.location.api.Location
 import io.element.android.features.location.impl.aPermissionsState
+import io.element.android.features.location.impl.common.FakeUserLocationStateFactory
 import io.element.android.features.location.impl.common.actions.FakeLocationActions
 import io.element.android.features.location.impl.common.permissions.FakePermissionsPresenter
-import io.element.android.features.location.impl.common.permissions.PermissionsEvents
+import io.element.android.features.location.impl.common.permissions.PermissionsEvent
 import io.element.android.features.location.impl.common.permissions.PermissionsState
 import io.element.android.features.location.impl.common.ui.LocationConstraintsDialogState
 import io.element.android.features.location.impl.live.LiveLocationStore
@@ -59,7 +62,6 @@ import io.element.android.tests.testutils.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -76,20 +78,18 @@ class ShareLocationPresenterTest {
     private val fakeMessageComposerContext = FakeMessageComposerContext()
     private val fakeLocationActions = FakeLocationActions()
     private val fakeBuildMeta = aBuildMeta(applicationName = "app name")
-    private val fakeMatrixClient = FakeMatrixClient(
-        sessionId = A_USER_ID,
-        getMapStyleUrlResult = { Result.success(null) },
-    )
+    private val fakeMatrixClient = FakeMatrixClient(sessionId = A_USER_ID)
 
     private val durationFormatter = FakeDurationFormatter()
 
-    private fun TestScope.createShareLocationPresenter(
+    private fun createShareLocationPresenter(
         joinedRoom: JoinedRoom = FakeJoinedRoom(),
         timelineMode: Timeline.Mode = Timeline.Mode.Live,
         locationActions: FakeLocationActions = fakeLocationActions,
         liveLocationShareManager: FakeActiveLiveLocationShareManager = FakeActiveLiveLocationShareManager(),
         liveLocationStore: LiveLocationStore = createLiveLocationStore(sessionId = joinedRoom.sessionId),
         client: FakeMatrixClient = fakeMatrixClient,
+        customMapTilerConfigProvider: () -> Result<MapTilerConfig?> = { Result.success(null) },
     ): ShareLocationPresenter = ShareLocationPresenter(
         permissionsPresenterFactory = { fakePermissionsPresenter },
         room = joinedRoom,
@@ -102,6 +102,8 @@ class ShareLocationPresenterTest {
         durationFormatter = durationFormatter,
         liveLocationShareManager = liveLocationShareManager,
         liveLocationStore = liveLocationStore,
+        userLocationStateFactory = FakeUserLocationStateFactory(),
+        customMapTilerConfigProvider = customMapTilerConfigProvider,
     )
 
     @Test
@@ -116,27 +118,26 @@ class ShareLocationPresenterTest {
         val shareLocationPresenter = createShareLocationPresenter()
         shareLocationPresenter.test {
             val state = awaitFirstItem()
-            assertThat(state.customMapStyleUrl.isLoading()).isFalse()
+            assertThat(state.customMapTilerConfig.isLoading()).isFalse()
             assertThat(state.trackUserLocation).isTrue()
-            assertThat(state.hasLocationPermission).isTrue()
             assertThat(state.dialogState).isEqualTo(ShareLocationState.Dialog.Constraints(LocationConstraintsDialogState.None))
         }
     }
 
     @Test
     fun `present - non-null customMapStyleUrl`() = runTest {
+        val mapTilerConfig = aMapTilerConfig(apiKey = "A KEY")
         val shareLocationPresenter = createShareLocationPresenter(
             client = FakeMatrixClient(
                 sessionId = A_USER_ID,
-                getMapStyleUrlResult = { Result.success("aUrl") },
-            )
+            ),
+            customMapTilerConfigProvider = { Result.success(mapTilerConfig) }
         )
         shareLocationPresenter.test {
-            skipItems(1)
             val state = awaitItem()
-            assertThat(state.customMapStyleUrl.isLoading()).isTrue()
+            assertThat(state.customMapTilerConfig.isLoading()).isTrue()
             val finalState = awaitItem()
-            assertThat(finalState.customMapStyleUrl.dataOrNull()).isEqualTo("aUrl")
+            assertThat(finalState.customMapTilerConfig.dataOrNull()).isEqualTo(mapTilerConfig)
         }
     }
 
@@ -155,8 +156,25 @@ class ShareLocationPresenterTest {
         }.test {
             val initialState = awaitFirstItem()
             assertThat(initialState.trackUserLocation).isTrue()
-            assertThat(initialState.hasLocationPermission).isTrue()
             assertThat(initialState.dialogState).isEqualTo(ShareLocationState.Dialog.Constraints(LocationConstraintsDialogState.None))
+        }
+    }
+
+    @Test
+    fun `initial state with permissions not yet requested triggers permission request`() = runTest {
+        val shareLocationPresenter = createShareLocationPresenter()
+        fakePermissionsPresenter.givenState(
+            aPermissionsState(
+                permissions = PermissionsState.Permissions.NoneGranted,
+                shouldShowRationale = false,
+                permissionsRequested = false,
+            )
+        )
+
+        shareLocationPresenter.test {
+            skipItems(2)
+            cancelAndIgnoreRemainingEvents()
+            assertThat(fakePermissionsPresenter.events).contains(PermissionsEvent.RequestPermissions)
         }
     }
 
@@ -167,6 +185,7 @@ class ShareLocationPresenterTest {
             aPermissionsState(
                 permissions = PermissionsState.Permissions.NoneGranted,
                 shouldShowRationale = false,
+                permissionsRequested = true,
             )
         )
 
@@ -175,7 +194,6 @@ class ShareLocationPresenterTest {
         }.test {
             val initialState = awaitFirstItem()
             assertThat(initialState.trackUserLocation).isFalse()
-            assertThat(initialState.hasLocationPermission).isFalse()
             assertThat(initialState.dialogState).isEqualTo(
                 ShareLocationState.Dialog.Constraints(LocationConstraintsDialogState.PermissionDenied)
             )
@@ -195,7 +213,6 @@ class ShareLocationPresenterTest {
         shareLocationPresenter.test {
             val initialState = awaitFirstItem()
             assertThat(initialState.trackUserLocation).isFalse()
-            assertThat(initialState.hasLocationPermission).isFalse()
             assertThat(initialState.dialogState).isEqualTo(
                 ShareLocationState.Dialog.Constraints(LocationConstraintsDialogState.PermissionRationale)
             )
@@ -216,7 +233,6 @@ class ShareLocationPresenterTest {
         shareLocationPresenter.test {
             val initialState = awaitFirstItem()
             assertThat(initialState.trackUserLocation).isFalse()
-            assertThat(initialState.hasLocationPermission).isTrue()
             assertThat(initialState.dialogState).isEqualTo(
                 ShareLocationState.Dialog.Constraints(LocationConstraintsDialogState.LocationServiceDisabled)
             )
@@ -282,7 +298,7 @@ class ShareLocationPresenterTest {
             // Wait for dialog to be dismissed
             awaitItem()
 
-            assertThat(fakePermissionsPresenter.events.last()).isEqualTo(PermissionsEvents.RequestPermissions)
+            assertThat(fakePermissionsPresenter.events.last()).isEqualTo(PermissionsEvent.RequestPermissions)
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -294,6 +310,7 @@ class ShareLocationPresenterTest {
             aPermissionsState(
                 permissions = PermissionsState.Permissions.NoneGranted,
                 shouldShowRationale = false,
+                permissionsRequested = true,
             )
         )
 
@@ -362,7 +379,12 @@ class ShareLocationPresenterTest {
 
     @Test
     fun `ShowLiveLocationDurationPicker shows disclaimer when acceptance is missing`() = runTest {
-        val presenter = createShareLocationPresenter()
+        val room = FakeJoinedRoom(
+            baseRoom = FakeBaseRoom(
+                roomPermissions = grantedSendLiveLocationPermissions()
+            )
+        )
+        val presenter = createShareLocationPresenter(joinedRoom = room)
         fakePermissionsPresenter.givenState(
             aPermissionsState(
                 permissions = PermissionsState.Permissions.AllGranted,
@@ -465,7 +487,12 @@ class ShareLocationPresenterTest {
 
     @Test
     fun `ShowLiveLocationDurationPicker uses the active session disclaimer state`() = runTest {
-        val joinedRoom = FakeJoinedRoom(baseRoom = FakeBaseRoom(sessionId = SessionId("@alice:server")))
+        val joinedRoom = FakeJoinedRoom(
+            baseRoom = FakeBaseRoom(
+                sessionId = SessionId("@alice:server"),
+                roomPermissions = grantedSendLiveLocationPermissions()
+            ),
+        )
         createLiveLocationStore(sessionId = SessionId("@bob:server"))
             .setAcceptedLiveLocationDisclaimer()
             .getOrThrow()
@@ -508,12 +535,13 @@ class ShareLocationPresenterTest {
             aPermissionsState(
                 permissions = PermissionsState.Permissions.NoneGranted,
                 shouldShowRationale = false,
+                permissionsRequested = true,
             )
         )
 
         shareLocationPresenter.test {
             val initialState = awaitFirstItem()
-            // Dismiss initial dialog
+            // Dismiss initial dialog to allow re-triggering it
             initialState.eventSink(ShareLocationEvent.DismissDialog)
             val dismissedState = awaitItem()
 
@@ -681,7 +709,7 @@ class ShareLocationPresenterTest {
     }
 
     private suspend fun <T> ReceiveTurbine<T>.awaitFirstItem(): T {
-        skipItems(2)
+        skipItems(1)
         return awaitItem()
     }
 }
