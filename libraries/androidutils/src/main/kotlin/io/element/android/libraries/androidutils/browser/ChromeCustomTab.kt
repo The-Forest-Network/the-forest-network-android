@@ -30,6 +30,9 @@ fun Activity.openUrlInChromeCustomTab(
     darkTheme: Boolean,
     url: String,
     @ColorInt toolbarColor: Int? = null,
+    // When true, the tab has no access to existing cookies/session data and discards its own on close.
+    // Used for flows (like OAuth account creation) where a stale cached browser session must not interfere.
+    ephemeralBrowsing: Boolean = false,
 ) {
     try {
         CustomTabsIntent.Builder()
@@ -50,6 +53,7 @@ fun Activity.openUrlInChromeCustomTab(
                 }
             )
             .setShareIdentityEnabled(false)
+            .setEphemeralBrowsingEnabled(ephemeralBrowsing)
             // Note: setting close button icon does not work
             // .setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_back_24dp))
             // .setStartAnimations(context, R.anim.enter_fade_in, R.anim.exit_fade_out)

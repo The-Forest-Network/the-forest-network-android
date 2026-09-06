@@ -16,10 +16,10 @@ object BuildTimeConfig {
     const val GOOGLE_APP_ID_DEBUG = "1:730998879297:android:e65718b849c90aa127c2c0"
     const val GOOGLE_APP_ID_NIGHTLY = "1:730998879297:android:b8593ef1d9d2b03627c2c0"
 
-    val METADATA_HOST_REVERSED: String? = null
+    val METADATA_HOST_REVERSED: String? = "earth.theforestnetwork.village.android"
     val OAUTH_CLIENT_URL_PATH: String? = "apps/android"
     val URL_WEBSITE: String? = "https://theforestnetwork.earth"
-    val URL_LOGO: String? = null
+    val URL_LOGO: String? = "https://theforestnetwork.earth/mobile-icon.png"
     val URL_COPYRIGHT: String? = "https://theforestnetwork.earth/copyright"
     val URL_ACCEPTABLE_USE: String? = "https://theforestnetwork.earth/acceptable-use"
     val URL_PRIVACY: String? = "https://theforestnetwork.earth/privacy"

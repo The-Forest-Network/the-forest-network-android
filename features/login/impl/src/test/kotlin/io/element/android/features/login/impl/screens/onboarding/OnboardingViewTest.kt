@@ -148,6 +148,21 @@ class OnboardingViewTest : RobolectricTestParameter() {
     }
 
     @Test
+    fun `when create account is offered for a pre defined account provider - clicking on button emits the expected event`() = runAndroidComposeUiTest {
+        val eventSink = EventsRecorder<OnBoardingEvent>()
+        setOnboardingView(
+            state = anOnBoardingState(
+                defaultAccountProvider = "element.io",
+                canCreateAccount = true,
+                eventSink = eventSink,
+            ),
+            onCreateAccount = EnsureNeverCalled(),
+        )
+        clickOn(R.string.screen_onboarding_sign_up)
+        eventSink.assertSingle(OnBoardingEvent.OnCreateAccount("element.io"))
+    }
+
+    @Test
     fun `clicking on the trailhead link calls the expected callback`() = runAndroidComposeUiTest {
         val eventSink = EventsRecorder<OnBoardingEvent>(expectEvents = false)
         ensureCalledOnce { callback ->

@@ -31,6 +31,7 @@ import io.element.android.libraries.matrix.test.A_HOMESERVER_URL
 import io.element.android.libraries.matrix.test.A_HOMESERVER_URL_2
 import io.element.android.libraries.matrix.test.A_LOGIN_HINT
 import io.element.android.libraries.matrix.test.auth.FakeMatrixAuthenticationService
+import io.element.android.libraries.matrix.test.auth.aMatrixHomeServerDetails
 import io.element.android.libraries.matrix.test.core.aBuildMeta
 import io.element.android.libraries.oauth.api.OAuthActionFlow
 import io.element.android.libraries.oauth.test.FakeOAuthActionFlow
@@ -232,13 +233,58 @@ class OnBoardingPresenterTest {
             ),
             enterpriseService = FakeEnterpriseService(
                 defaultHomeserverListResult = { listOf(ACCOUNT_PROVIDER_FROM_CONFIG) },
-            )
+            ),
+            authenticationService = FakeMatrixAuthenticationService(
+                setHomeserverResult = { Result.success(aMatrixHomeServerDetails(supportsOAuthLogin = false)) },
+            ),
         )
         presenter.test {
             skipItems(1)
             awaitItem().also {
                 assertThat(it.defaultAccountProvider).isEqualTo(ACCOUNT_PROVIDER_FROM_CONFIG)
                 assertThat(it.canLoginWithQrCode).isTrue()
+                assertThat(it.canCreateAccount).isFalse()
+            }
+        }
+    }
+
+    @Test
+    fun `present - forced account provider that supports OAuth registration allows create account`() = runTest {
+        val presenter = createPresenter(
+            enterpriseService = FakeEnterpriseService(
+                defaultHomeserverListResult = { listOf(ACCOUNT_PROVIDER_FROM_CONFIG) },
+            ),
+            authenticationService = FakeMatrixAuthenticationService(
+                setHomeserverResult = { Result.success(aMatrixHomeServerDetails(supportsOAuthLogin = true)) },
+            ),
+        )
+        presenter.test {
+            skipItems(1)
+            // Settling forcedHomeserverDetails (resolved asynchronously via setHomeserver) recomposes once more.
+            skipItems(1)
+            awaitItem().also {
+                assertThat(it.defaultAccountProvider).isEqualTo(ACCOUNT_PROVIDER_FROM_CONFIG)
+                assertThat(it.canCreateAccount).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun `present - forced account provider that does not support OAuth registration disallows create account`() = runTest {
+        val presenter = createPresenter(
+            enterpriseService = FakeEnterpriseService(
+                defaultHomeserverListResult = { listOf(ACCOUNT_PROVIDER_FROM_CONFIG) },
+            ),
+            authenticationService = FakeMatrixAuthenticationService(
+                setHomeserverResult = { Result.success(aMatrixHomeServerDetails(supportsOAuthLogin = false)) },
+            ),
+        )
+        presenter.test {
+            skipItems(1)
+            // Settling forcedHomeserverDetails (resolved asynchronously via setHomeserver) recomposes once more.
+            skipItems(1)
+            awaitItem().also {
+                assertThat(it.defaultAccountProvider).isEqualTo(ACCOUNT_PROVIDER_FROM_CONFIG)
                 assertThat(it.canCreateAccount).isFalse()
             }
         }
@@ -303,6 +349,7 @@ private fun createPresenter(
     onBoardingLogoResIdProvider: OnBoardingLogoResIdProvider = OnBoardingLogoResIdProvider { null },
     sessionStore: SessionStore = InMemorySessionStore(),
     accountProviderDataSource: AccountProviderDataSource = anAccountProviderDataSource(),
+    authenticationService: MatrixAuthenticationService = FakeMatrixAuthenticationService(),
 ) = OnBoardingPresenter(
     params = params,
     buildMeta = buildMeta,
@@ -316,6 +363,7 @@ private fun createPresenter(
     onBoardingLogoResIdProvider = onBoardingLogoResIdProvider,
     sessionStore = sessionStore,
     accountProviderDataSource = accountProviderDataSource,
+    authenticationService = authenticationService,
 )
 
 fun createLoginModePresenter(

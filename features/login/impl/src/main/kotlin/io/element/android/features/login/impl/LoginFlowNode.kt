@@ -269,7 +269,17 @@ class LoginFlowNode(
     private fun navigateToMas(oAuthDetails: OAuthDetails) {
         activity?.let {
             externalAppStarted = true
-            it.openUrlInChromeCustomTab(null, darkTheme, oAuthDetails.url, toolbarColor)
+            it.openUrlInChromeCustomTab(
+                null,
+                darkTheme,
+                oAuthDetails.url,
+                toolbarColor,
+                // An ephemeral tab has no cookies of its own, so a known upstream MAS bug (prompt=create
+                // silently signing into an already-cached browser session instead of showing the sign-up
+                // form) can't find a session to reuse. Login keeps normal Custom Tab behavior so returning
+                // users keep session/cookie continuity with an account they already have.
+                ephemeralBrowsing = oAuthDetails.isAccountCreation,
+            )
         }
     }
 

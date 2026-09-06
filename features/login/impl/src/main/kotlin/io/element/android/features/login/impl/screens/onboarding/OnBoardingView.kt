@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.BiasAlignment
@@ -241,6 +243,8 @@ private fun OnBoardingContent(state: OnBoardingState) {
     }
 }
 
+private enum class SubmittedAction { SignIn, CreateAccount }
+
 @Composable
 private fun OnBoardingButtons(
     state: OnBoardingState,
@@ -255,6 +259,12 @@ private fun OnBoardingButtons(
             state.loginModeState.loginMode is AsyncData.Loading
         }
     }
+    // Sign in and (when locked to a forced homeserver) create account both submit through the
+    // same loginModeState, so isLoading alone can't tell which button triggered it - without this,
+    // both buttons show a spinner together no matter which one was pressed.
+    var lastSubmittedAction by remember { mutableStateOf<SubmittedAction?>(null) }
+    val isSigningIn = isLoading && lastSubmittedAction == SubmittedAction.SignIn
+    val isCreatingAccount = isLoading && lastSubmittedAction == SubmittedAction.CreateAccount
 
     ButtonColumnMolecule {
         val signInButtonStringRes = if (state.canLoginWithQrCode || state.canCreateAccount) {
@@ -284,19 +294,35 @@ private fun OnBoardingButtons(
         } else {
             Button(
                 text = stringResource(id = R.string.screen_onboarding_sign_in_to, defaultAccountProvider),
-                showProgress = isLoading,
+                showProgress = isSigningIn,
                 onClick = {
+                    lastSubmittedAction = SubmittedAction.SignIn
                     state.eventSink(OnBoardingEvent.OnSignIn(defaultAccountProvider))
                 },
-                enabled = state.submitEnabled || isLoading,
+                enabled = state.submitEnabled || isSigningIn,
                 modifier = Modifier
                     .fillMaxWidth()
             )
         }
         if (state.canCreateAccount) {
+            // When locked to a single forced homeserver, defaultAccountProvider is that homeserver:
+            // submit registration directly rather than navigating to the account-provider
+            // confirmation screen, since there's no provider to confirm. Only that direct-submit
+            // path has a network round-trip to show loading/disabled state for; the navigation-only
+            // path (unlocked, multiple providers) stays a plain always-enabled button.
+            val forcedAccountProvider = state.defaultAccountProvider
             TextButton(
                 text = stringResource(id = R.string.screen_onboarding_sign_up),
-                onClick = onCreateAccount,
+                showProgress = forcedAccountProvider != null && isCreatingAccount,
+                onClick = {
+                    if (forcedAccountProvider != null) {
+                        lastSubmittedAction = SubmittedAction.CreateAccount
+                        state.eventSink(OnBoardingEvent.OnCreateAccount(forcedAccountProvider))
+                    } else {
+                        onCreateAccount()
+                    }
+                },
+                enabled = forcedAccountProvider == null || state.submitEnabled || isCreatingAccount,
                 modifier = Modifier
                     .fillMaxWidth()
             )
