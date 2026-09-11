@@ -10,8 +10,8 @@ import org.gradle.api.JavaVersion
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 object Versions {
-    const val VERSION_CODE = 1
-    val VERSION_NAME = "1.0.0"
+    const val VERSION_CODE = 2
+    val VERSION_NAME = "1.0.1"
 
     /**
      * Compile SDK version. Must be updated when a new Android version is released.
