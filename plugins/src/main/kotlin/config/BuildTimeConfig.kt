@@ -20,10 +20,10 @@ object BuildTimeConfig {
     val OAUTH_CLIENT_URL_PATH: String? = "apps/android"
     val URL_WEBSITE: String? = "https://theforestnetwork.earth"
     val URL_LOGO: String? = "https://theforestnetwork.earth/mobile-icon.png"
-    val URL_COPYRIGHT: String? = "https://theforestnetwork.earth/copyright"
-    val URL_ACCEPTABLE_USE: String? = "https://theforestnetwork.earth/acceptable-use"
-    val URL_PRIVACY: String? = "https://theforestnetwork.earth/privacy"
-    val URL_POLICY: String? = "https://theforestnetwork.earth/privacy"
+    val URL_COPYRIGHT: String? = "https://theforestnetwork.earth/village/copyright"
+    val URL_ACCEPTABLE_USE: String? = "https://theforestnetwork.earth/village/terms"
+    val URL_PRIVACY: String? = "https://theforestnetwork.earth/village/privacy"
+    val URL_POLICY: String? = "https://theforestnetwork.earth/village/privacy"
     val URL_REQUEST_ACCOUNT: String? = "https://theforestnetwork.earth/village/join"
     val SERVICES_MAPTILER_BASE_URL: String? = null
     val SERVICES_MAPTILER_APIKEY: String? = null
