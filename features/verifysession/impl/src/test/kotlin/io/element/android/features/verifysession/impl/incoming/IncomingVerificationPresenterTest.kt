@@ -13,18 +13,22 @@ import io.element.android.features.verifysession.impl.ui.aEmojisSessionVerificat
 import io.element.android.libraries.dateformatter.api.DateFormatter
 import io.element.android.libraries.dateformatter.test.FakeDateFormatter
 import io.element.android.libraries.matrix.api.core.FlowId
-import io.element.android.libraries.matrix.api.encryption.EncryptionService
-import io.element.android.libraries.matrix.api.encryption.RecoveryState
 import io.element.android.libraries.matrix.api.user.MatrixUser
 import io.element.android.libraries.matrix.api.verification.SessionVerificationRequestDetails
 import io.element.android.libraries.matrix.api.verification.SessionVerificationService
 import io.element.android.libraries.matrix.api.verification.VerificationFlowState
 import io.element.android.libraries.matrix.api.verification.VerificationRequest
+import io.element.android.libraries.matrix.test.AN_AVATAR_URL
 import io.element.android.libraries.matrix.test.A_DEVICE_ID
+import io.element.android.libraries.matrix.test.A_SESSION_ID
 import io.element.android.libraries.matrix.test.A_TIMESTAMP
 import io.element.android.libraries.matrix.test.A_USER_ID
-import io.element.android.libraries.matrix.test.encryption.FakeEncryptionService
+import io.element.android.libraries.matrix.test.A_USER_ID_2
+import io.element.android.libraries.matrix.test.A_USER_NAME
 import io.element.android.libraries.matrix.test.verification.FakeSessionVerificationService
+import io.element.android.libraries.sessionstorage.api.SessionStore
+import io.element.android.libraries.sessionstorage.test.InMemorySessionStore
+import io.element.android.libraries.sessionstorage.test.aSessionData
 import io.element.android.tests.testutils.WarmUpRule
 import io.element.android.tests.testutils.lambda.lambdaError
 import io.element.android.tests.testutils.lambda.lambdaRecorder
@@ -45,14 +49,61 @@ class IncomingVerificationPresenterTest {
     val warmUpRule = WarmUpRule()
 
     @Test
+    fun `present - the current user is built from the stored session`() = runTest {
+        assertCurrentUserIsBuiltFromStoredSession(anIncomingSessionVerificationRequest)
+    }
+
+    @Test
+    fun `present - incoming user verification - the current user is built from the stored session`() = runTest {
+        assertCurrentUserIsBuiltFromStoredSession(anIncomingUserVerificationRequest)
+    }
+
+    private suspend fun TestScope.assertCurrentUserIsBuiltFromStoredSession(
+        verificationRequest: VerificationRequest.Incoming,
+    ) {
+        createPresenter(
+            verificationRequest = verificationRequest,
+            service = FakeSessionVerificationService(
+                acknowledgeVerificationRequestLambda = { },
+                resetLambda = { },
+            ),
+            sessionStore = InMemorySessionStore(
+                initialList = listOf(
+                    aSessionData(
+                        sessionId = A_SESSION_ID.value,
+                        userDisplayName = A_USER_NAME,
+                        userAvatarUrl = AN_AVATAR_URL,
+                        userAvatarData = "avatarData",
+                    )
+                ),
+            ),
+        ).test {
+            val step = awaitItem().step as IncomingVerificationState.Step.Initial
+            assertThat(step.currentUser).isEqualTo(MatrixUser(A_SESSION_ID))
+            val stepWithUser = awaitItem().step as IncomingVerificationState.Step.Initial
+            assertThat(stepWithUser.currentUser).isEqualTo(
+                MatrixUser(
+                    userId = A_SESSION_ID,
+                    displayName = A_USER_NAME,
+                    avatarUrl = AN_AVATAR_URL,
+                    avatarThumbnail = "avatarData",
+                )
+            )
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `present - nominal case - incoming verification successful`() = runTest {
         val acknowledgeVerificationRequestLambda = lambdaRecorder<VerificationRequest.Incoming, Unit> { _ -> }
         val acceptVerificationRequestLambda = lambdaRecorder<Unit> { }
+        val startSasVerificationLambda = lambdaRecorder<Unit> { }
         val approveVerificationLambda = lambdaRecorder<Unit> { }
         val resetLambda = lambdaRecorder<Boolean, Unit> { }
         val fakeSessionVerificationService = FakeSessionVerificationService(
             acknowledgeVerificationRequestLambda = acknowledgeVerificationRequestLambda,
             acceptVerificationRequestLambda = acceptVerificationRequestLambda,
+            startSasVerificationLambda = startSasVerificationLambda,
             approveVerificationLambda = approveVerificationLambda,
             resetLambda = resetLambda,
         )
@@ -62,6 +113,7 @@ class IncomingVerificationPresenterTest {
             val initialState = awaitItem()
             assertThat(initialState.step).isEqualTo(
                 IncomingVerificationState.Step.Initial(
+                    currentUser = MatrixUser(A_SESSION_ID),
                     deviceDisplayName = "a device name",
                     deviceId = A_DEVICE_ID,
                     formattedSignInTime = "567 TimeOrDate false",
@@ -83,6 +135,7 @@ class IncomingVerificationPresenterTest {
             advanceTimeBy(1.seconds)
 
             acceptVerificationRequestLambda.assertions().isCalledOnce()
+            startSasVerificationLambda.assertions().isCalledOnce()
             // Remote sent the data
             fakeSessionVerificationService.emitVerificationFlowState(VerificationFlowState.DidAcceptVerificationRequest)
             fakeSessionVerificationService.emitVerificationFlowState(VerificationFlowState.DidStartSasVerification)
@@ -117,11 +170,13 @@ class IncomingVerificationPresenterTest {
     fun `present - emoji not matching case - incoming verification failure`() = runTest {
         val acknowledgeVerificationRequestLambda = lambdaRecorder<VerificationRequest.Incoming, Unit> { _ -> }
         val acceptVerificationRequestLambda = lambdaRecorder<Unit> { }
+        val startSasVerificationLambda = lambdaRecorder<Unit> { }
         val declineVerificationLambda = lambdaRecorder<Unit> { }
         val resetLambda = lambdaRecorder<Boolean, Unit> { }
         val fakeSessionVerificationService = FakeSessionVerificationService(
             acknowledgeVerificationRequestLambda = acknowledgeVerificationRequestLambda,
             acceptVerificationRequestLambda = acceptVerificationRequestLambda,
+            startSasVerificationLambda = startSasVerificationLambda,
             declineVerificationLambda = declineVerificationLambda,
             resetLambda = resetLambda,
         )
@@ -131,6 +186,7 @@ class IncomingVerificationPresenterTest {
             val initialState = awaitItem()
             assertThat(initialState.step).isEqualTo(
                 IncomingVerificationState.Step.Initial(
+                    currentUser = MatrixUser(A_SESSION_ID),
                     deviceDisplayName = "a device name",
                     deviceId = A_DEVICE_ID,
                     formattedSignInTime = "567 TimeOrDate false",
@@ -152,6 +208,7 @@ class IncomingVerificationPresenterTest {
             advanceTimeBy(1.seconds)
 
             acceptVerificationRequestLambda.assertions().isCalledOnce()
+            startSasVerificationLambda.assertions().isCalledOnce()
             // Remote sent the data
             fakeSessionVerificationService.emitVerificationFlowState(VerificationFlowState.DidAcceptVerificationRequest)
             fakeSessionVerificationService.emitVerificationFlowState(VerificationFlowState.DidStartSasVerification)
@@ -196,6 +253,7 @@ class IncomingVerificationPresenterTest {
             val initialState = awaitItem()
             assertThat(initialState.step).isEqualTo(
                 IncomingVerificationState.Step.Initial(
+                    currentUser = MatrixUser(A_SESSION_ID),
                     deviceDisplayName = "a device name",
                     deviceId = A_DEVICE_ID,
                     formattedSignInTime = "567 TimeOrDate false",
@@ -217,11 +275,13 @@ class IncomingVerificationPresenterTest {
     fun `present - user goes back when comparing emoji - incoming verification failure`() = runTest {
         val acknowledgeVerificationRequestLambda = lambdaRecorder<VerificationRequest.Incoming, Unit> { _ -> }
         val acceptVerificationRequestLambda = lambdaRecorder<Unit> { }
+        val startSasVerificationLambda = lambdaRecorder<Unit> { }
         val declineVerificationLambda = lambdaRecorder<Unit> { }
         val resetLambda = lambdaRecorder<Boolean, Unit> { }
         val fakeSessionVerificationService = FakeSessionVerificationService(
             acknowledgeVerificationRequestLambda = acknowledgeVerificationRequestLambda,
             acceptVerificationRequestLambda = acceptVerificationRequestLambda,
+            startSasVerificationLambda = startSasVerificationLambda,
             declineVerificationLambda = declineVerificationLambda,
             resetLambda = resetLambda,
         )
@@ -231,6 +291,7 @@ class IncomingVerificationPresenterTest {
             val initialState = awaitItem()
             assertThat(initialState.step).isEqualTo(
                 IncomingVerificationState.Step.Initial(
+                    currentUser = MatrixUser(A_SESSION_ID),
                     deviceDisplayName = "a device name",
                     deviceId = A_DEVICE_ID,
                     formattedSignInTime = "567 TimeOrDate false",
@@ -252,6 +313,7 @@ class IncomingVerificationPresenterTest {
             advanceTimeBy(1.seconds)
 
             acceptVerificationRequestLambda.assertions().isCalledOnce()
+            startSasVerificationLambda.assertions().isCalledOnce()
             // Remote sent the data
             fakeSessionVerificationService.emitVerificationFlowState(VerificationFlowState.DidAcceptVerificationRequest)
             fakeSessionVerificationService.emitVerificationFlowState(VerificationFlowState.DidStartSasVerification)
@@ -297,47 +359,6 @@ class IncomingVerificationPresenterTest {
             navigatorLambda.assertions().isCalledOnce()
         }
     }
-
-    @Test
-    fun `present - a session missing its secrets cannot be used to verify and offers no verification action`() = runTest {
-        val acknowledgeVerificationRequestLambda = lambdaRecorder<VerificationRequest.Incoming, Unit> { _ -> }
-        val resetLambda = lambdaRecorder<Boolean, Unit> { }
-        val acceptVerificationRequestLambda = lambdaRecorder<Unit> { lambdaError() }
-        val encryptionService = FakeEncryptionService().apply {
-            recoveryStateStateFlow.value = RecoveryState.INCOMPLETE
-        }
-        createPresenter(
-            service = FakeSessionVerificationService(
-                acknowledgeVerificationRequestLambda = acknowledgeVerificationRequestLambda,
-                acceptVerificationRequestLambda = acceptVerificationRequestLambda,
-                resetLambda = resetLambda,
-            ),
-            encryptionService = encryptionService,
-        ).test {
-            advanceUntilIdle()
-            assertThat(awaitItem().step).isEqualTo(IncomingVerificationState.Step.Unavailable)
-            acceptVerificationRequestLambda.assertions().isNeverCalled()
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `present - a session that holds its secrets is offered the verification action`() = runTest {
-        val encryptionService = FakeEncryptionService().apply {
-            recoveryStateStateFlow.value = RecoveryState.ENABLED
-        }
-        createPresenter(
-            service = FakeSessionVerificationService(
-                acknowledgeVerificationRequestLambda = { },
-                resetLambda = { },
-            ),
-            encryptionService = encryptionService,
-        ).test {
-            advanceUntilIdle()
-            assertThat(awaitItem().step).isInstanceOf(IncomingVerificationState.Step.Initial::class.java)
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
 }
 
 private val anIncomingSessionVerificationRequest = VerificationRequest.Incoming.OtherSession(
@@ -354,17 +375,32 @@ private val anIncomingSessionVerificationRequest = VerificationRequest.Incoming.
     )
 )
 
+private val anIncomingUserVerificationRequest = VerificationRequest.Incoming.User(
+    details = SessionVerificationRequestDetails(
+        senderProfile = MatrixUser(
+            userId = A_USER_ID_2,
+            displayName = "another user name",
+            avatarUrl = null,
+        ),
+        flowId = FlowId("flowId"),
+        deviceId = A_DEVICE_ID,
+        deviceDisplayName = "a device name",
+        firstSeenTimestamp = A_TIMESTAMP,
+    )
+)
+
 internal fun TestScope.createPresenter(
     verificationRequest: VerificationRequest.Incoming = anIncomingSessionVerificationRequest,
     navigator: IncomingVerificationNavigator = IncomingVerificationNavigator { lambdaError() },
     service: SessionVerificationService = FakeSessionVerificationService(),
-    encryptionService: EncryptionService = FakeEncryptionService(),
     dateFormatter: DateFormatter = FakeDateFormatter(),
+    sessionStore: SessionStore = InMemorySessionStore(),
 ) = IncomingVerificationPresenter(
     verificationRequest = verificationRequest,
     navigator = navigator,
     sessionVerificationService = service,
-    encryptionService = encryptionService,
+    sessionId = A_SESSION_ID,
+    sessionStore = sessionStore,
     stateMachine = IncomingVerificationStateMachine(service),
     dateFormatter = dateFormatter,
     sessionCoroutineScope = backgroundScope,

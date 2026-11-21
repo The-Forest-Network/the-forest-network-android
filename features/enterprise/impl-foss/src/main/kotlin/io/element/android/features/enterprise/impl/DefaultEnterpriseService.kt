@@ -17,13 +17,16 @@ import io.element.android.compound.tokens.generated.compoundColorsLight
 import io.element.android.features.enterprise.api.BugReportUrl
 import io.element.android.features.enterprise.api.EnterpriseService
 import io.element.android.libraries.androidutils.json.JsonProvider
+import io.element.android.libraries.core.coroutine.CoroutineDispatchers
 import io.element.android.libraries.core.extensions.mapCatchingExceptions
 import io.element.android.libraries.core.uri.ensureProtocol
 import io.element.android.libraries.matrix.api.ClientUrlContentFetcher
 import io.element.android.libraries.matrix.api.TemporaryMatrixClientFactory
+import io.element.android.libraries.matrix.api.accountprovider.AccountProvider
 import io.element.android.libraries.matrix.api.core.SessionId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import timber.log.Timber
@@ -32,15 +35,20 @@ import timber.log.Timber
 class DefaultEnterpriseService(
     private val temporaryMatrixClientFactory: TemporaryMatrixClientFactory,
     private val jsonProvider: JsonProvider,
+    private val dispatchers: CoroutineDispatchers,
 ) : EnterpriseService {
+    // The one and only server The Forest Network app is allowed to connect to.
+    private val forestNetwork = AccountProvider.Generic("matrix.theforestnetwork.earth")
+
     override suspend fun isEnterpriseUser(sessionId: SessionId) = false
     override suspend fun tweakMasUrl(url: String, urlContentFetcher: ClientUrlContentFetcher) = url
-    override fun homeserverAllowList(): List<String> = listOf("https://matrix.theforestnetwork.earth")
-    override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) =
-        homeserverUrl == "https://matrix.theforestnetwork.earth"
-    override suspend fun isElementProEnforced(serverName: String): Boolean {
-        val temporaryMatrixClient = temporaryMatrixClientFactory.create(serverName).getOrElse { return false }
-        return temporaryMatrixClient.use { client ->
+    override fun accountProviderAllowList(): List<AccountProvider> = listOf(forestNetwork)
+    override fun canConnectToAnyAccountProvider(): Boolean = false
+    override suspend fun isAllowedToConnectToAccountProvider(accountProvider: AccountProvider) =
+        accountProvider.matches(forestNetwork)
+    override suspend fun isElementProEnforced(serverName: String): Boolean = withContext(dispatchers.io) {
+        val temporaryMatrixClient = temporaryMatrixClientFactory.create(serverName).getOrElse { return@withContext false }
+        temporaryMatrixClient.use { client ->
             val baseUrl = serverName.ensureProtocol().removeSuffix("/")
             // We'll always perform a network request here since we're not interested in any cached value.
             client.getUrl("$baseUrl/.well-known/element/element.json")

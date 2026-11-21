@@ -22,7 +22,6 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import io.element.android.appconfig.OnBoardingConfig
 import io.element.android.features.enterprise.api.EnterpriseService
-import io.element.android.features.enterprise.api.canConnectToAnyHomeserver
 import io.element.android.features.login.impl.accesscontrol.DefaultAccountProviderAccessControl
 import io.element.android.features.login.impl.accountprovider.AccountProviderDataSource
 import io.element.android.features.login.impl.login.LoginModeEvent
@@ -31,11 +30,13 @@ import io.element.android.features.rageshake.api.RageshakeFeatureAvailability
 import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.core.meta.BuildMeta
 import io.element.android.libraries.core.meta.BuildType
+import io.element.android.libraries.matrix.api.accountprovider.AccountProvider
 import io.element.android.libraries.matrix.api.auth.MatrixAuthenticationService
 import io.element.android.libraries.matrix.api.auth.MatrixHomeServerDetails
 import io.element.android.libraries.sessionstorage.api.SessionStore
 import io.element.android.libraries.ui.utils.MultipleTapToUnlock
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AssistedInject
 class OnBoardingPresenter(
@@ -62,33 +63,41 @@ class OnBoardingPresenter(
     @Composable
     override fun present(): OnBoardingState {
         val localCoroutineScope = rememberCoroutineScope()
-        val forcedAccountProvider = remember {
-            // If homeserverAllowList() returns a singleton list, this is the default account provider.
-            // In this case, the user can sign in using this homeserver, or use QrCode login
-            enterpriseService.homeserverAllowList().singleOrNull()
+        val canConnectToAnyAccountProvider = remember {
+            enterpriseService.canConnectToAnyAccountProvider()
         }
-        val canConnectToAnyHomeserver = remember {
-            enterpriseService.canConnectToAnyHomeserver()
+        val forcedAccountProvider = remember {
+            // If accountProviderAllowList() returns a singleton list, and the user is not free to use another
+            // account provider, this is the default account provider.
+            // In this case, the user can sign in using this homeserver, or use QrCode login
+            if (canConnectToAnyAccountProvider) {
+                null
+            } else {
+                enterpriseService.accountProviderAllowList().singleOrNull()
+            }
         }
         // When locked to a single forced homeserver, whether "Create account" can be offered depends on
-        // whether *that* homeserver supports OAuth registration, not on canConnectToAnyHomeserver (which is
+        // whether *that* homeserver supports OAuth registration, not on canConnectToAnyAccountProvider (which is
         // always false in this case and says nothing about the forced homeserver's own capabilities).
         val forcedHomeserverDetails by produceState<MatrixHomeServerDetails?>(initialValue = null, forcedAccountProvider) {
-            value = forcedAccountProvider?.let { authenticationService.setHomeserver(it).getOrNull() }
+            value = forcedAccountProvider?.let { authenticationService.setHomeserver(it.serverNameOrBaseUrl()).getOrNull() }
         }
         val mustChooseAccountProvider = remember {
-            !canConnectToAnyHomeserver && enterpriseService.homeserverAllowList().size > 1
+            !canConnectToAnyAccountProvider && enterpriseService.accountProviderAllowList().size > 1
         }
-        val linkAccountProvider by produceState<String?>(initialValue = null) {
+        val linkAccountProvider by produceState<AccountProvider?>(initialValue = null) {
             // Account provider from the link, if allowed by the enterprise service
-            value = params.accountProvider?.takeIf {
-                try {
-                    defaultAccountProviderAccessControl.assertIsAllowedToConnectToAccountProvider(it, it)
-                    true
-                } catch (_: Exception) {
-                    false
+            value = params.accountProvider
+                ?.let { AccountProvider.Generic(it) }
+                ?.takeIf {
+                    try {
+                        defaultAccountProviderAccessControl.assertIsAllowedToConnectToAccountProvider(it)
+                        true
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to check account provider from link, assuming not allowed")
+                        false
+                    }
                 }
-            }
         }
         val defaultAccountProvider = remember(linkAccountProvider) {
             // If there is a forced account provider, this is the default account provider
@@ -114,22 +123,22 @@ class OnBoardingPresenter(
             when (event) {
                 is OnBoardingEvent.OnSignIn -> localCoroutineScope.launch {
                     // Ensure that the current account provider is set
-                    accountProviderDataSource.setUrl(event.defaultAccountProvider)
+                    accountProviderDataSource.setAccountProvider(event.defaultAccountProvider)
                     loginModeState.eventSink(
                         LoginModeEvent.Submit(
                             isAccountCreation = false,
-                            homeserverUrl = event.defaultAccountProvider,
+                            homeserverUrl = event.defaultAccountProvider.serverNameOrBaseUrl(),
                             resolvedHomeserverUrl = null,
                             loginHint = params.loginHint?.takeIf { forcedAccountProvider == null },
                         )
                     )
                 }
                 is OnBoardingEvent.OnCreateAccount -> localCoroutineScope.launch {
-                    accountProviderDataSource.setUrl(event.defaultAccountProvider)
+                    accountProviderDataSource.setAccountProvider(event.defaultAccountProvider)
                     loginModeState.eventSink(
                         LoginModeEvent.Submit(
                             isAccountCreation = true,
-                            homeserverUrl = event.defaultAccountProvider,
+                            homeserverUrl = event.defaultAccountProvider.serverNameOrBaseUrl(),
                             resolvedHomeserverUrl = null,
                             loginHint = null,
                             // Already resolved to gate canCreateAccount above; reuse it instead of a second setHomeserver call.
@@ -159,7 +168,7 @@ class OnBoardingPresenter(
             canCreateAccount = OnBoardingConfig.CAN_CREATE_ACCOUNT && if (forcedAccountProvider != null) {
                 forcedHomeserverDetails?.supportsOAuthLogin == true
             } else {
-                defaultAccountProvider == null && canConnectToAnyHomeserver
+                defaultAccountProvider == null && canConnectToAnyAccountProvider
             },
             canReportBug = canReportBug && showReportBug,
             loginModeState = loginModeState,

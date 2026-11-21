@@ -6,8 +6,6 @@
  * Please see LICENSE files in the repository root for full details.
  */
 
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package io.element.android.libraries.mediaviewer.impl.viewer
 
 import androidx.activity.compose.BackHandler
@@ -36,7 +34,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -61,6 +58,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -79,6 +77,7 @@ import io.element.android.features.viewfolder.api.TextFileViewer
 import io.element.android.libraries.androidutils.text.safeLinkify
 import io.element.android.libraries.architecture.AsyncData
 import io.element.android.libraries.audio.api.AudioFocus
+import io.element.android.libraries.core.extensions.runCatchingExceptions
 import io.element.android.libraries.core.mimetype.MimeTypes.isMimeTypeVideo
 import io.element.android.libraries.designsystem.atomic.molecules.IconTitleSubtitleMolecule
 import io.element.android.libraries.designsystem.components.BigIcon
@@ -96,11 +95,15 @@ import io.element.android.libraries.designsystem.theme.components.TopAppBar
 import io.element.android.libraries.designsystem.utils.hasCompactHeightWindowSize
 import io.element.android.libraries.designsystem.utils.snackbar.SnackbarHost
 import io.element.android.libraries.designsystem.utils.snackbar.rememberSnackbarHostState
+import io.element.android.libraries.htmlrenderer.api.DocumentNode
+import io.element.android.libraries.htmlrenderer.api.ui.HtmlMessageContent
+import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.media.MediaSource
-import io.element.android.libraries.matrix.ui.media.MediaRequestData
 import io.element.android.libraries.matrix.ui.media.contentvalidation.collectMediaState
+import io.element.android.libraries.matrixmedia.api.MediaRequestData
 import io.element.android.libraries.mediaviewer.api.MediaInfo
 import io.element.android.libraries.mediaviewer.api.local.LocalMedia
+import io.element.android.libraries.mediaviewer.impl.R
 import io.element.android.libraries.mediaviewer.impl.details.MediaBottomSheetState
 import io.element.android.libraries.mediaviewer.impl.details.MediaDeleteConfirmationBottomSheet
 import io.element.android.libraries.mediaviewer.impl.details.MediaDetailsBottomSheet
@@ -115,6 +118,7 @@ import kotlinx.coroutines.delay
 import me.saket.telephoto.zoomable.OverzoomEffect
 import me.saket.telephoto.zoomable.ZoomSpec
 import me.saket.telephoto.zoomable.rememberZoomableState
+import timber.log.Timber
 
 val topAppBarHeight = 112.dp
 
@@ -291,7 +295,9 @@ fun MediaViewerView(
                             MediaViewerBottomBar(
                                 showDivider = dataForPage.mediaInfo.mimeType.isMimeTypeVideo(),
                                 caption = dataForPage.mediaInfo.caption,
-                                formattedCaption = dataForPage.mediaInfo.formattedCaption,
+                                formattedCaption = dataForPage.formattedCaption,
+                                captionTree = dataForPage.captionTree,
+                                currentUserId = state.currentUserId,
                                 onHeightChange = { bottomPaddingInPixels = it },
                             )
                         }
@@ -405,7 +411,7 @@ private fun MediaViewerPage(
                 exit = fadeOut(spring(stiffness = 500F)),
             ) {
                 AsyncIndicator.Loading(
-                    text = stringResource(CommonStrings.content_scanner_scanning),
+                    text = stringResource(R.string.content_scanner_scanning),
                 )
             }
 
@@ -548,7 +554,6 @@ private fun rememberShowProgress(downloadedMedia: AsyncData<LocalMedia>): Boolea
     return showProgress
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MediaViewerTopBar(
     data: MediaViewerPageData.MediaViewerData,
@@ -637,6 +642,8 @@ private fun MediaViewerTopBar(
 private fun MediaViewerBottomBar(
     caption: String?,
     formattedCaption: CharSequence?,
+    captionTree: DocumentNode?,
+    currentUserId: UserId?,
     showDivider: Boolean,
     onHeightChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -661,22 +668,37 @@ private fun MediaViewerBottomBar(
                     .heightIn(max = if (hasCompactHeightWindowSize()) maxCaptionHeightLandscape else maxCaptionHeightPortrait)
                     .padding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues()),
             ) {
-                val textToRender = when {
-                    formattedCaption != null -> formattedCaption
-                    caption != null -> caption.safeLinkify().toSpannable()
-                    else -> null
+                val textModifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .verticalScroll(scrollState)
+                    .navigationBarsPadding()
+                val textToRender = remember(caption, formattedCaption) {
+                    when {
+                        formattedCaption != null -> formattedCaption
+                        caption != null -> caption.safeLinkify().toSpannable()
+                        else -> null
+                    }
                 }
-                if (textToRender != null) {
+                if (captionTree != null) {
+                    // When the new timeline event renderer is enabled, the caption has a parsed tree: render it natively with Compose
+                    val uriHandler = LocalUriHandler.current
+                    HtmlMessageContent(
+                        node = captionTree,
+                        modifier = textModifier,
+                        currentUserId = currentUserId,
+                        onLinkClick = { url, _ ->
+                            runCatchingExceptions { uriHandler.openUri(url) }
+                                .onFailure { Timber.e(it, "Failed to open link") }
+                        },
+                    )
+                } else if (textToRender != null) {
                     CompositionLocalProvider(
                         LocalContentColor provides ElementTheme.colors.textPrimary,
                         LocalTextStyle provides ElementTheme.typography.fontBodyLgRegular
                     ) {
                         EditorStyledText(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .verticalScroll(scrollState)
-                                .navigationBarsPadding(),
+                            modifier = textModifier,
                             text = textToRender,
                             style = ElementRichTextEditorStyle.textStyle(),
                             releaseOnDetach = false,

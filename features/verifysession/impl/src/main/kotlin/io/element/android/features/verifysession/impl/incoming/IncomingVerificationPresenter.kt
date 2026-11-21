@@ -27,15 +27,18 @@ import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.dateformatter.api.DateFormatter
 import io.element.android.libraries.dateformatter.api.DateFormatterMode
 import io.element.android.libraries.di.annotations.SessionCoroutineScope
-import io.element.android.libraries.matrix.api.encryption.EncryptionService
-import io.element.android.libraries.matrix.api.encryption.RecoveryState
+import io.element.android.libraries.matrix.api.core.SessionId
+import io.element.android.libraries.matrix.api.user.MatrixUser
+import io.element.android.libraries.matrix.api.user.toMatrixUser
 import io.element.android.libraries.matrix.api.verification.SessionVerificationRequestDetails
 import io.element.android.libraries.matrix.api.verification.SessionVerificationService
 import io.element.android.libraries.matrix.api.verification.VerificationFlowState
 import io.element.android.libraries.matrix.api.verification.VerificationRequest
+import io.element.android.libraries.sessionstorage.api.SessionStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -48,7 +51,8 @@ class IncomingVerificationPresenter(
     @Assisted private val navigator: IncomingVerificationNavigator,
     @SessionCoroutineScope private val sessionCoroutineScope: CoroutineScope,
     private val sessionVerificationService: SessionVerificationService,
-    private val encryptionService: EncryptionService,
+    private val sessionId: SessionId,
+    private val sessionStore: SessionStore,
     private val stateMachine: IncomingVerificationStateMachine,
     private val dateFormatter: DateFormatter,
 ) : Presenter<IncomingVerificationState> {
@@ -96,15 +100,18 @@ class IncomingVerificationPresenter(
                 mode = DateFormatterMode.TimeOrDate,
             )
         }
-        val recoveryState by encryptionService.recoveryStateStateFlow.collectAsState()
-        val isMissingSecrets = recoveryState == RecoveryState.INCOMPLETE
-        val step by remember(isMissingSecrets) {
+        val currentUser by remember {
+            sessionStore.sessionsFlow().mapNotNull { sessions ->
+                sessions.find { it.userId == sessionId.value }?.toMatrixUser()
+            }
+        }.collectAsState(MatrixUser(sessionId))
+        val step by remember {
             derivedStateOf {
-                val currentStep = stateAndDispatch.state.value.toVerificationStep(
+                stateAndDispatch.state.value.toVerificationStep(
+                    currentUser = currentUser,
                     sessionVerificationRequestDetails = verificationRequest.details,
                     formattedSignInTime = formattedSignInTime,
                 )
-                if (isMissingSecrets && currentStep is Step.Initial) Step.Unavailable else currentStep
             }
         }
 
@@ -138,7 +145,6 @@ class IncomingVerificationPresenter(
                         } else {
                             stateAndDispatch.dispatchAction(StateMachineEvent.DeclineChallenge)
                         }
-                        Step.Unavailable,
                         Step.Canceled,
                         Step.Completed,
                         Step.Failure -> navigator.onFinish()
@@ -155,6 +161,7 @@ class IncomingVerificationPresenter(
     }
 
     private fun StateMachineState?.toVerificationStep(
+        currentUser: MatrixUser,
         sessionVerificationRequestDetails: SessionVerificationRequestDetails,
         formattedSignInTime: String,
     ): Step =
@@ -164,6 +171,7 @@ class IncomingVerificationPresenter(
             StateMachineState.RejectingIncomingVerification,
             null -> {
                 Step.Initial(
+                    currentUser = currentUser,
                     deviceDisplayName = sessionVerificationRequestDetails.deviceDisplayName,
                     deviceId = sessionVerificationRequestDetails.deviceId,
                     formattedSignInTime = formattedSignInTime,

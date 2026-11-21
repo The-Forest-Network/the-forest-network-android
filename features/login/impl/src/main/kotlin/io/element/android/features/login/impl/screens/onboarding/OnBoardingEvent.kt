@@ -8,16 +8,18 @@
 
 package io.element.android.features.login.impl.screens.onboarding
 
+import io.element.android.libraries.matrix.api.accountprovider.AccountProvider
+
 sealed interface OnBoardingEvent {
     data class OnSignIn(
-        val defaultAccountProvider: String
+        val defaultAccountProvider: AccountProvider
     ) : OnBoardingEvent
 
     // Only emitted when locked to a single forced homeserver: skips the account-provider
     // confirmation screen and submits registration directly, since there is no provider choice
     // to confirm.
     data class OnCreateAccount(
-        val defaultAccountProvider: String
+        val defaultAccountProvider: AccountProvider
     ) : OnBoardingEvent
 
     data object OnVersionClick : OnBoardingEvent

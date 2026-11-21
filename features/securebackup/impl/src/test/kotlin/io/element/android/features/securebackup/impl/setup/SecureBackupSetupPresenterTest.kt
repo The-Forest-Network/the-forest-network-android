@@ -12,10 +12,16 @@ import app.cash.molecule.RecompositionMode
 import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
+import io.element.android.features.securebackup.impl.R
 import io.element.android.features.securebackup.impl.setup.views.RecoveryKeyUserStory
 import io.element.android.features.securebackup.impl.setup.views.RecoveryKeyViewState
+import io.element.android.libraries.androidutils.clipboard.ClipboardHelper
+import io.element.android.libraries.androidutils.clipboard.FakeClipboardHelper
+import io.element.android.libraries.androidutils.toast.FakeToastHelper
+import io.element.android.libraries.androidutils.toast.ToastHelper
 import io.element.android.libraries.matrix.api.encryption.EnableRecoveryProgress
 import io.element.android.libraries.matrix.api.encryption.EncryptionService
+import io.element.android.libraries.matrix.api.exception.ClientException
 import io.element.android.libraries.matrix.test.A_RECOVERY_KEY
 import io.element.android.libraries.matrix.test.encryption.FakeEncryptionService
 import io.element.android.tests.testutils.WarmUpRule
@@ -134,7 +140,39 @@ class SecureBackupSetupPresenterTest {
             val creatingState = awaitItem()
             assertThat(creatingState.setupState).isEqualTo(SetupState.Creating)
             val failedState = awaitItem()
-            assertThat(failedState.setupState).isInstanceOf(SetupState.Error::class.java)
+            assertThat(failedState.setupState).isEqualTo(SetupState.Error(SetupErrorType.Unknown))
+            failedState.eventSink(SecureBackupSetupEvent.DismissDialog)
+
+            val finalState = awaitItem()
+            assertThat(finalState.setupState).isEqualTo(SetupState.Init)
+        }
+    }
+
+    @Test
+    fun `present - network error when creating the recovery key`() = runTest {
+        val encryptionService = FakeEncryptionService(
+            enableRecoveryLambda = { _, _ ->
+                Result.failure(
+                    ClientException.Generic(
+                        message = "error sending request for url (https://matrix.org/_matrix/client/v3/keys/backup/version)",
+                        details = null,
+                    )
+                )
+            }
+        )
+        val presenter = createSecureBackupSetupPresenter(
+            isChangeRecoveryKeyUserStory = false,
+            encryptionService = encryptionService
+        )
+        moleculeFlow(RecompositionMode.Immediate) {
+            presenter.present()
+        }.test {
+            val initialState = awaitItem()
+            initialState.eventSink(SecureBackupSetupEvent.CreateRecoveryKey)
+            val creatingState = awaitItem()
+            assertThat(creatingState.setupState).isEqualTo(SetupState.Creating)
+            val failedState = awaitItem()
+            assertThat(failedState.setupState).isEqualTo(SetupState.Error(SetupErrorType.Network))
             failedState.eventSink(SecureBackupSetupEvent.DismissDialog)
 
             val finalState = awaitItem()
@@ -186,16 +224,70 @@ class SecureBackupSetupPresenterTest {
         }
     }
 
+    @Test
+    fun `present - copy recovery key on old device shows a toast`() = runTest {
+        val encryptionService = FakeEncryptionService()
+        val clipboardHelper = FakeClipboardHelper(isOldDevice = true)
+        val toastHelper = FakeToastHelper()
+        val presenter = createSecureBackupSetupPresenter(
+            encryptionService = encryptionService,
+            clipboardHelper = clipboardHelper,
+            toastHelper = toastHelper,
+        )
+        moleculeFlow(RecompositionMode.Immediate) {
+            presenter.present()
+        }.test {
+            awaitItem().eventSink.invoke(SecureBackupSetupEvent.CreateRecoveryKey)
+            skipItems(1)
+            encryptionService.emitEnableRecoveryProgress(EnableRecoveryProgress.Done(A_RECOVERY_KEY))
+            val createdState = awaitItem()
+            createdState.eventSink.invoke(SecureBackupSetupEvent.CopyRecoveryKey)
+            assertThat(clipboardHelper.clipboardContents).isEqualTo(A_RECOVERY_KEY)
+            assertThat(clipboardHelper.isSensitive).isTrue()
+            assertThat(toastHelper.shownToasts).containsExactly(R.string.screen_recovery_key_copied_to_clipboard)
+            assertThat(awaitItem().setupState).isInstanceOf(SetupState.CreatedAndSaved::class.java)
+        }
+    }
+
+    @Test
+    fun `present - copy recovery key on new device does not show a toast`() = runTest {
+        val encryptionService = FakeEncryptionService()
+        val clipboardHelper = FakeClipboardHelper(isOldDevice = false)
+        val toastHelper = FakeToastHelper()
+        val presenter = createSecureBackupSetupPresenter(
+            encryptionService = encryptionService,
+            clipboardHelper = clipboardHelper,
+            toastHelper = toastHelper,
+        )
+        moleculeFlow(RecompositionMode.Immediate) {
+            presenter.present()
+        }.test {
+            awaitItem().eventSink.invoke(SecureBackupSetupEvent.CreateRecoveryKey)
+            skipItems(1)
+            encryptionService.emitEnableRecoveryProgress(EnableRecoveryProgress.Done(A_RECOVERY_KEY))
+            val createdState = awaitItem()
+            createdState.eventSink.invoke(SecureBackupSetupEvent.CopyRecoveryKey)
+            assertThat(clipboardHelper.clipboardContents).isEqualTo(A_RECOVERY_KEY)
+            assertThat(clipboardHelper.isSensitive).isTrue()
+            assertThat(toastHelper.shownToasts).isEmpty()
+            assertThat(awaitItem().setupState).isInstanceOf(SetupState.CreatedAndSaved::class.java)
+        }
+    }
+
     private fun createSecureBackupSetupPresenter(
         isChangeRecoveryKeyUserStory: Boolean = false,
         encryptionService: EncryptionService = FakeEncryptionService(
             enableRecoveryLambda = { _, _ -> Result.success("") },
         ),
+        clipboardHelper: ClipboardHelper = FakeClipboardHelper(),
+        toastHelper: ToastHelper = FakeToastHelper(),
     ): SecureBackupSetupPresenter {
         return SecureBackupSetupPresenter(
             isChangeRecoveryKeyUserStory = isChangeRecoveryKeyUserStory,
             stateMachine = SecureBackupSetupStateMachine(),
             encryptionService = encryptionService,
+            clipboardHelper = clipboardHelper,
+            toastHelper = toastHelper,
         )
     }
 }

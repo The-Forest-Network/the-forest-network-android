@@ -11,6 +11,7 @@ package io.element.android.features.messages.impl.timeline
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -44,6 +45,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -63,7 +65,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
@@ -89,16 +90,16 @@ import io.element.android.features.messages.impl.timeline.di.aFakeTimelineItemPr
 import io.element.android.features.messages.impl.timeline.focus.FocusRequestStateView
 import io.element.android.features.messages.impl.timeline.model.NewEventState
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
+import io.element.android.features.messages.impl.timeline.model.TimelineItemSelectionData
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemEventContent
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemEventContentPreviewParam
+import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemTextContent
 import io.element.android.features.messages.impl.timeline.protection.TimelineProtectionState
 import io.element.android.features.messages.impl.timeline.protection.aTimelineProtectionState
-import io.element.android.libraries.androidutils.system.copyToClipboard
 import io.element.android.libraries.designsystem.atomic.atoms.UnreadIndicatorAtom
 import io.element.android.libraries.designsystem.components.dialogs.AlertDialog
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
-import io.element.android.libraries.designsystem.text.roundToPx
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.designsystem.utils.animateScrollToItemCenter
@@ -111,6 +112,7 @@ import io.element.android.libraries.testtags.testTag
 import io.element.android.libraries.ui.strings.CommonStrings
 import io.element.android.wysiwyg.link.Link
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -168,8 +170,6 @@ fun TimelineView(
         state.eventSink(TimelineEvent.FocusOnEvent(eventId))
     }
 
-    val context = LocalContext.current
-    val toastMessage = stringResource(CommonStrings.common_copied_to_clipboard)
     val view = LocalView.current
     fun inReplyToClick(eventId: EventId) {
         state.eventSink(TimelineEvent.FocusOnEvent(eventId))
@@ -179,92 +179,122 @@ fun TimelineView(
         view.performHapticFeedback(
             HapticFeedbackConstants.LONG_PRESS
         )
-        context.copyToClipboard(
-            text = link.url,
-            toastMessage = toastMessage,
-        )
+        state.eventSink(TimelineEvent.CopyToClipboard(link.url))
     }
 
     fun prefetchMoreItems() {
         state.eventSink(TimelineEvent.LoadMore(Timeline.PaginationDirection.BACKWARDS))
     }
 
+    val isSelectionModeActive = state.isSelectionModeActive
+    // Animate once here (shared by every row) rather than per-row: the value is identical for all
+    // rows since it only depends on the timeline-wide selection mode.
+    val selectionProgress = animateFloatAsState(
+        targetValue = if (isSelectionModeActive) 1f else 0f,
+        label = "selectionProgress",
+    )
+    // Hand the rows a reader rather than the value: they read it when they lay out and draw, so a frame of the animation does not recompose every
+    // visible row, and the slide cannot desynchronise from the indicator.
+    val selectionProgressProvider = remember(selectionProgress) { { selectionProgress.value } }
+    fun onToggleSelection(event: TimelineItem.Event) {
+        val eventId = event.eventId ?: return
+        state.eventSink(TimelineEvent.ToggleSelection(eventId))
+    }
+
     // Animate alpha when timeline is first displayed, to avoid flashes or glitching when viewing rooms
     AnimatedVisibility(visible = true, enter = fadeIn()) {
-        Box(modifier) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(nestedScrollConnection)
-                    .testTag(TestTags.timeline),
-                state = lazyListState,
-                reverseLayout = true,
-                contentPadding = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues() + PaddingValues(top = 64.dp, bottom = 8.dp),
-            ) {
-                items(
-                    items = state.timelineItems,
-                    contentType = { timelineItem -> timelineItem.contentType() },
-                    key = { timelineItem -> timelineItem.identifier() },
-                ) { timelineItem ->
-                    TimelineItemRow(
-                        timelineItem = timelineItem,
-                        timelineMode = state.timelineMode,
-                        timelineRoomInfo = state.timelineRoomInfo,
-                        timelineProtectionState = timelineProtectionState,
-                        isLastOutgoingMessage = state.isLastOutgoingMessage(timelineItem.identifier()),
-                        focusedEventId = state.focusedEventId,
-                        displayThreadSummaries = state.displayThreadSummaries,
-                        onUserDataClick = onUserDataClick,
-                        onLinkClick = onLinkClick,
-                        onLinkLongClick = ::onLinkLongClick,
-                        onContentClick = onContentClick,
-                        onGalleryItemClick = onGalleryItemClick,
-                        onLongClick = onMessageLongClick,
-                        inReplyToClick = ::inReplyToClick,
-                        onReactionClick = onReactionClick,
-                        onReactionLongClick = onReactionLongClick,
-                        onMoreReactionsClick = onMoreReactionsClick,
-                        onReadReceiptClick = onReadReceiptClick,
-                        onSwipeToReply = onSwipeToReply,
-                        onJoinCallClick = onJoinCallClick,
-                        eventSink = state.eventSink,
-                    )
+        val composeLocalTimelineEventRendererConfig = remember(state.useNewTimelineEventRenderer, state.timelineRoomInfo.currentUserId) {
+            ComposeLocalTimelineEventRendererConfig(
+                isComposeRendererEnabled = state.useNewTimelineEventRenderer,
+                currentUserId = state.timelineRoomInfo.currentUserId,
+            )
+        }
+        CompositionLocalProvider(LocalTimelineEventRendererConfig provides composeLocalTimelineEventRendererConfig) {
+            Box(modifier) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(nestedScrollConnection)
+                        .testTag(TestTags.timeline),
+                    state = lazyListState,
+                    reverseLayout = true,
+                    contentPadding = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues() + PaddingValues(top = 64.dp, bottom = 8.dp),
+                ) {
+                    items(
+                        items = state.timelineItems,
+                        contentType = { timelineItem -> timelineItem.contentType() },
+                        key = { timelineItem -> timelineItem.identifier() },
+                    ) { timelineItem ->
+                        TimelineItemRow(
+                            timelineItem = timelineItem,
+                            timelineMode = state.timelineMode,
+                            timelineRoomInfo = state.timelineRoomInfo,
+                            timelineProtectionState = timelineProtectionState,
+                            isLastOutgoingMessage = state.isLastOutgoingMessage(timelineItem.identifier()),
+                            focusedEventId = state.focusedEventId,
+                            displayThreadSummaries = state.displayThreadSummaries,
+                            selectionData = TimelineItemSelectionData(
+                                isSelectionModeActive = isSelectionModeActive,
+                                progress = selectionProgressProvider,
+                                isSelected = state.isSelected(timelineItem),
+                                canBeSelected = state.canSelect(timelineItem),
+                            ),
+                            onUserDataClick = onUserDataClick,
+                            onLinkClick = onLinkClick,
+                            onLinkLongClick = ::onLinkLongClick,
+                            onContentClick = { event ->
+                                if (state.canSelect(event)) onToggleSelection(event) else onContentClick(event)
+                            },
+                            onGalleryItemClick = onGalleryItemClick,
+                            onLongClick = { event ->
+                                if (state.canSelect(event)) onToggleSelection(event) else onMessageLongClick(event)
+                            },
+                            inReplyToClick = ::inReplyToClick,
+                            onReactionClick = onReactionClick,
+                            onReactionLongClick = onReactionLongClick,
+                            onMoreReactionsClick = onMoreReactionsClick,
+                            onReadReceiptClick = onReadReceiptClick,
+                            onSwipeToReply = onSwipeToReply,
+                            onJoinCallClick = onJoinCallClick,
+                            eventSink = state.eventSink,
+                        )
+                    }
                 }
+
+                FocusRequestStateView(
+                    focusRequestState = state.focusRequestState,
+                    onClearFocusRequestState = ::clearFocusRequestState
+                )
+
+                TimelinePrefetchingHelper(
+                    lazyListState = lazyListState,
+                    prefetch = ::prefetchMoreItems
+                )
+
+                TimelineScrollHelper(
+                    hasAnyEvent = state.hasAnyEvent,
+                    lazyListState = lazyListState,
+                    forceJumpToBottomVisibility = forceJumpToBottomVisibility,
+                    forceJumpToReadMarkerVisibility = forceJumpToReadMarkerVisibility,
+                    newEventState = state.newEventState,
+                    isLive = state.isLive,
+                    focusRequestState = state.focusRequestState,
+                    displayJumpToUnread = state.displayJumpToUnread,
+                    jumpToUnread = state.jumpToUnread,
+                    onScrollFinishAt = ::onScrollFinishAt,
+                    onJumpToLive = ::onJumpToLive,
+                    onFocusEventRender = ::onFocusEventRender,
+                    onMarkAllAsRead = ::onMarkAllAsRead,
+                    onFocusOnEvent = ::onFocusOnEvent,
+                )
+
+                FloatingDateBadgeOverlay(
+                    lazyListState = lazyListState,
+                    timelineItems = state.timelineItems,
+                    isLive = state.isLive,
+                    topOffset = floatingDateTopOffset,
+                )
             }
-
-            FocusRequestStateView(
-                focusRequestState = state.focusRequestState,
-                onClearFocusRequestState = ::clearFocusRequestState
-            )
-
-            TimelinePrefetchingHelper(
-                lazyListState = lazyListState,
-                prefetch = ::prefetchMoreItems
-            )
-
-            TimelineScrollHelper(
-                hasAnyEvent = state.hasAnyEvent,
-                lazyListState = lazyListState,
-                forceJumpToBottomVisibility = forceJumpToBottomVisibility,
-                forceJumpToReadMarkerVisibility = forceJumpToReadMarkerVisibility,
-                newEventState = state.newEventState,
-                isLive = state.isLive,
-                focusRequestState = state.focusRequestState,
-                displayJumpToUnread = state.displayJumpToUnread,
-                jumpToUnread = state.jumpToUnread,
-                onScrollFinishAt = ::onScrollFinishAt,
-                onJumpToLive = ::onJumpToLive,
-                onFocusEventRender = ::onFocusEventRender,
-                onMarkAllAsRead = ::onMarkAllAsRead,
-                onFocusOnEvent = ::onFocusOnEvent,
-            )
-
-            FloatingDateBadgeOverlay(
-                lazyListState = lazyListState,
-                timelineItems = state.timelineItems,
-                isLive = state.isLive,
-                topOffset = floatingDateTopOffset,
-            )
         }
     }
 
@@ -292,7 +322,8 @@ private fun TimelinePrefetchingHelper(
     LaunchedEffect(Unit) {
         // We're using snapshot flows for these because using `LaunchedEffect` with `derivedState` doesn't seem to be responsive enough
         val firstVisibleItemIndexFlow = snapshotFlow { lazyListState.firstVisibleItemIndex }
-        val layoutInfoFlow = snapshotFlow { lazyListState.layoutInfo }
+        val visibleItemsCountFlow = snapshotFlow { lazyListState.layoutInfo.visibleItemsInfo.size }
+        val totalItemsCountFlow = snapshotFlow { lazyListState.layoutInfo.totalItemsCount }
         val isScrollingFlow = snapshotFlow { lazyListState.isScrollInProgress }
             // This value changes too frequently, so we debounce it to avoid unnecessary prefetching. It's the equivalent of a conditional 'throttleLatest'
             .conflate()
@@ -301,13 +332,17 @@ private fun TimelinePrefetchingHelper(
                 if (isScrolling) delay(100.milliseconds)
             }
 
-        val isCloseToStartOfLoadedTimelineFlow = combine(layoutInfoFlow, firstVisibleItemIndexFlow) { layoutInfo, firstVisibleItemIndex ->
-            firstVisibleItemIndex + layoutInfo.visibleItemsInfo.size >= layoutInfo.totalItemsCount - 40
+        val isCloseToStartOfLoadedTimelineFlow = combine(
+            visibleItemsCountFlow,
+            totalItemsCountFlow,
+            firstVisibleItemIndexFlow,
+        ) { visibleItemsCount, totalItemsCount, firstVisibleItemIndex ->
+            firstVisibleItemIndex + visibleItemsCount >= totalItemsCount - 40
         }
 
         // If we have no timeline items, we need to back paginate to load some messages. This usually happens on all timelines except for live ones.
         // This automatic pagination was previously done by the SDK, and we received a `Reset` update, but now we need to do it ourselves.
-        val isEmptyTimelineFlow = layoutInfoFlow.map { it.totalItemsCount == 0 }
+        val isEmptyTimelineFlow = totalItemsCountFlow.map { it == 0 }
 
         combine(
             isCloseToStartOfLoadedTimelineFlow.distinctUntilChanged(),
@@ -495,6 +530,8 @@ private fun JumpToPositionButton(
                     .clip(CircleShape)
                     .border(1.dp, ElementTheme.colors.borderDisabled, CircleShape)
                     .combinedClickable(
+                        interactionSource = null,
+                        indication = ripple(focusRingShape = CircleShape),
                         onClick = onClick,
                         onLongClick = { menuExpanded = true },
                         onLongClickLabel = stringResource(CommonStrings.action_open_context_menu),
@@ -542,7 +579,10 @@ private fun JumpToPositionButton(
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(ElementTheme.colors.bgCanvasDefaultLevel1)
                                     .border(1.dp, ElementTheme.colors.borderDisabled, RoundedCornerShape(8.dp))
-                                    .clickable {
+                                    .clickable(
+                                        interactionSource = null,
+                                        indication = ripple(focusRingShape = RoundedCornerShape(8.dp)),
+                                    ) {
                                         menuExpanded = false
                                         onMarkAsRead()
                                     }
@@ -571,8 +611,8 @@ private fun JumpToPositionButton(
                     modifier = Modifier
                         .align(dotAlignment)
                         .offset { IntOffset(x = 0, y = dotYOffset.roundToPx()) },
-                    color = ElementTheme.colors.iconSuccessPrimary,
                     border = BorderStroke(2.dp, ElementTheme.colors.bgCanvasDefault),
+                    count = 0,
                 )
             }
         }
@@ -598,6 +638,36 @@ internal fun TimelineViewPreview(
                     pinnedEventIds = listOfNotNull(lastEventIdFromMe, lastEventIdFromOther)
                 ),
                 focusedEventIndex = 0,
+            ),
+            timelineProtectionState = aTimelineProtectionState(),
+            onUserDataClick = {},
+            onLinkClick = {},
+            onContentClick = {},
+            onMessageLongClick = {},
+            onSwipeToReply = {},
+            onReactionClick = { _, _ -> },
+            onReactionLongClick = { _, _ -> },
+            onJoinCallClick = {},
+            onMoreReactionsClick = {},
+            onReadReceiptClick = {},
+            onGalleryItemClick = { _, _ -> },
+            forceJumpToBottomVisibility = true,
+        )
+    }
+}
+
+@PreviewsDayNight
+@Composable
+internal fun TimelineViewSelectionModePreview() = ElementPreview {
+    val timelineItems = aTimelineItemList(aTimelineItemTextContent())
+    val selectedEventId = timelineItems.filterIsInstance<TimelineItem.Event>().first { SelectionAction.Forward.canApplyTo(it) }.eventId!!
+    CompositionLocalProvider(
+        LocalTimelineItemPresenterFactories provides aFakeTimelineItemPresenterFactories(),
+    ) {
+        TimelineView(
+            state = aTimelineState(
+                timelineItems = timelineItems,
+                selectionState = SelectionState.Active(SelectionAction.Forward, persistentSetOf(selectedEventId)),
             ),
             timelineProtectionState = aTimelineProtectionState(),
             onUserDataClick = {},
