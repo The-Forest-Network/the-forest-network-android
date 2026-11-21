@@ -36,6 +36,7 @@ Copy this checklist into a new issue for each Google Play release. Delete anythi
 - [ ] Safety features Play review expects still work: terms shown before signing in, reporting, blocking, and a reachable contact address.
 - [ ] Push notifications, calls and anything else this release touched.
 - [ ] Upgrade from the previous production version keeps the session and message history.
+- [ ] If the release touches sign-in, registration, token or session handling, or anything depending on MAS, test it against the test-MAS stack first (a build pointed at the test homeserver and auth service, not production): sign in, invite-only registration, password recovery and verification emails, and sign out. Confirm the stack is up and matches production's MAS version and config before relying on it.
 
 ## Play Console
 
