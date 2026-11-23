@@ -20,6 +20,11 @@ plugins {
 android {
     namespace = "io.element.android.features.login.impl"
 
+    defaultConfig {
+        // Must match the path of the Element mobile links intent filter in AndroidManifest.xml of the app module
+        buildConfigFieldStr("elementMobileLinkPath", BuildTimeConfig.ELEMENT_MOBILE_LINK_PATH)
+    }
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -86,14 +91,11 @@ dependencies {
     implementation(projects.libraries.oauth.api)
     implementation(projects.libraries.preferences.api)
     implementation(projects.libraries.uiUtils)
-    implementation(projects.libraries.wellknown.api)
     implementation(libs.androidx.browser)
     implementation(libs.androidx.webkit)
-    implementation(libs.serialization.json)
     api(projects.features.login.api)
 
     testCommonDependencies(libs, true)
-    testImplementation(projects.features.login.test)
     testImplementation(projects.features.enterprise.test)
     testImplementation(projects.features.preferences.test)
     testImplementation(projects.libraries.preferences.test)
@@ -101,7 +103,6 @@ dependencies {
     testImplementation(projects.libraries.oauth.test)
     testImplementation(projects.libraries.permissions.test)
     testImplementation(projects.libraries.sessionStorage.test)
-    testImplementation(projects.libraries.wellknown.test)
     testImplementation(libs.androidx.camera.camera2)
     testImplementation(libs.androidx.camera.lifecycle)
 }

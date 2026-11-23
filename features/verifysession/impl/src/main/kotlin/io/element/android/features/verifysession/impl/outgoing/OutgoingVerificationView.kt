@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -53,7 +52,6 @@ import io.element.android.libraries.matrix.api.verification.SessionVerificationD
 import io.element.android.libraries.matrix.api.verification.VerificationRequest
 import io.element.android.libraries.ui.strings.CommonStrings
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OutgoingVerificationView(
     state: OutgoingVerificationState,
@@ -291,25 +289,34 @@ private fun OutgoingVerificationBottomMenu(
             }
         }
         is Step.Verifying -> {
-            val isVerifying = step.state.isLoading()
+            val isLoading = step.state.isLoading()
             VerificationBottomMenu {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.screen_session_verification_they_match),
-                    enabled = !isVerifying,
-                    showProgress = isVerifying,
+                    text = stringResource(
+                        if (isLoading) {
+                            R.string.screen_session_verification_positive_button_verifying_ongoing
+                        } else {
+                            R.string.screen_session_verification_they_match
+                        }
+                    ),
+                    enabled = !isLoading,
+                    showProgress = isLoading,
                     onClick = {
                         eventSink(OutgoingVerificationViewEvent.ConfirmVerification)
                     },
                 )
-                TextButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.screen_session_verification_they_dont_match),
-                    enabled = !isVerifying,
-                    onClick = {
-                        eventSink(OutgoingVerificationViewEvent.DeclineVerification)
-                    },
-                )
+                if (isLoading) {
+                    InvisibleButton()
+                } else {
+                    TextButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.screen_session_verification_they_dont_match),
+                        onClick = {
+                            eventSink(OutgoingVerificationViewEvent.DeclineVerification)
+                        },
+                    )
+                }
             }
         }
         is Step.Completed -> {

@@ -17,7 +17,7 @@ android {
     namespace = "io.element.android.features.enterprise.impl"
 }
 
-setupDependencyInjection()
+setupDependencyInjection(generateNodeFactories = false)
 
 dependencies {
     implementation(projects.libraries.compound)
@@ -25,7 +25,6 @@ dependencies {
     implementation(projects.libraries.architecture)
     implementation(projects.libraries.androidutils)
     implementation(projects.libraries.matrix.api)
-    implementation(projects.libraries.wellknown.api)
     implementation(libs.serialization.json)
 
     testCommonDependencies(libs)

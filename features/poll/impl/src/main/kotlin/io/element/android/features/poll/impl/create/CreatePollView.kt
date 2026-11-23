@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -179,7 +178,7 @@ fun CreatePollView(
                 Column {
                     HorizontalDivider()
                     ListItem(
-                        content = { Text(text = stringResource(id = R.string.screen_create_poll_max_selections_headline)) },
+                        content = { Text(text = stringResource(id = R.string.screen_create_poll_votes_allowed_per_person)) },
                         trailingContent = ListItemContent.Custom {
                             MaxSelectionsStepper(
                                 current = state.maxSelections,
@@ -216,7 +215,6 @@ fun CreatePollView(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreatePollTopAppBar(
     mode: CreatePollState.Mode,

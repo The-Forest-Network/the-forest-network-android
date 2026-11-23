@@ -23,7 +23,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -70,7 +69,6 @@ import io.element.android.libraries.testtags.TestTags
 import io.element.android.libraries.testtags.testTag
 import io.element.android.libraries.ui.strings.CommonStrings
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPasswordView(
     state: LoginPasswordState,
@@ -131,7 +129,7 @@ fun LoginPasswordView(
                 iconStyle = BigIcon.Style.Default(CompoundIcons.UserProfileSolid()),
                 title = stringResource(
                     id = R.string.screen_account_provider_signin_title,
-                    state.accountProvider.title
+                    state.accountProvider.friendlyServerName()
                 ),
                 subTitle = stringResource(id = R.string.screen_login_subtitle)
             )

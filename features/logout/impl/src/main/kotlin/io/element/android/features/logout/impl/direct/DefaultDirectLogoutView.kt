@@ -27,11 +27,12 @@ class DefaultDirectLogoutView : DirectLogoutView {
         val eventSink = state.eventSink
         LogoutActionDialog(
             state.logoutAction,
+            showProgressDialog = true,
             onConfirmClick = {
-                eventSink(DirectLogoutEvent.Logout(ignoreSdkError = false))
+                eventSink(DirectLogoutEvent.Logout(ignoreSdkError = false, skipConfirmation = false))
             },
             onForceLogoutClick = {
-                eventSink(DirectLogoutEvent.Logout(ignoreSdkError = true))
+                eventSink(DirectLogoutEvent.Logout(ignoreSdkError = true, skipConfirmation = false))
             },
             onDismissDialog = {
                 eventSink(DirectLogoutEvent.CloseDialogs)

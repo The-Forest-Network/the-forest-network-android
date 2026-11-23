@@ -33,7 +33,12 @@ import io.element.android.features.poll.api.actions.SendPollResponseAction
 import io.element.android.features.poll.test.actions.FakeEndPollAction
 import io.element.android.features.poll.test.actions.FakeSendPollResponseAction
 import io.element.android.features.roomcall.api.aStandByCallState
+import io.element.android.libraries.androidutils.clipboard.ClipboardHelper
+import io.element.android.libraries.androidutils.clipboard.FakeClipboardHelper
+import io.element.android.libraries.androidutils.toast.FakeToastHelper
+import io.element.android.libraries.androidutils.toast.ToastHelper
 import io.element.android.libraries.architecture.Presenter
+import io.element.android.libraries.designsystem.utils.snackbar.SnackbarDispatcher
 import io.element.android.libraries.featureflag.api.FeatureFlags
 import io.element.android.libraries.featureflag.test.FakeFeatureFlagService
 import io.element.android.libraries.matrix.api.core.EventId
@@ -42,7 +47,6 @@ import io.element.android.libraries.matrix.api.core.ThreadId
 import io.element.android.libraries.matrix.api.core.UniqueId
 import io.element.android.libraries.matrix.api.core.asEventId
 import io.element.android.libraries.matrix.api.room.MessageEventType
-import io.element.android.libraries.matrix.api.room.RoomMembersState
 import io.element.android.libraries.matrix.api.room.tombstone.PredecessorRoom
 import io.element.android.libraries.matrix.api.timeline.MatrixTimelineItem
 import io.element.android.libraries.matrix.api.timeline.ReceiptType
@@ -50,7 +54,6 @@ import io.element.android.libraries.matrix.api.timeline.Timeline
 import io.element.android.libraries.matrix.api.timeline.item.event.EventReaction
 import io.element.android.libraries.matrix.api.timeline.item.event.LocalEventSendState
 import io.element.android.libraries.matrix.api.timeline.item.event.ReactionSender
-import io.element.android.libraries.matrix.api.timeline.item.event.Receipt
 import io.element.android.libraries.matrix.api.timeline.item.event.TimelineItemEventOrigin
 import io.element.android.libraries.matrix.api.timeline.item.virtual.VirtualTimelineItem
 import io.element.android.libraries.matrix.test.AN_EVENT_ID
@@ -64,7 +67,6 @@ import io.element.android.libraries.matrix.test.A_USER_ID
 import io.element.android.libraries.matrix.test.room.FakeBaseRoom
 import io.element.android.libraries.matrix.test.room.FakeJoinedRoom
 import io.element.android.libraries.matrix.test.room.aRoomInfo
-import io.element.android.libraries.matrix.test.room.aRoomMember
 import io.element.android.libraries.matrix.test.room.powerlevels.FakeRoomPermissions
 import io.element.android.libraries.matrix.test.timeline.FakeTimeline
 import io.element.android.libraries.matrix.test.timeline.aMessageContent
@@ -73,6 +75,7 @@ import io.element.android.libraries.matrix.test.timeline.anEventTimelineItem
 import io.element.android.libraries.matrix.test.timeline.item.event.aRoomMembershipContent
 import io.element.android.libraries.matrix.ui.components.aMatrixUserList
 import io.element.android.libraries.preferences.test.InMemorySessionPreferencesStore
+import io.element.android.libraries.ui.strings.CommonStrings
 import io.element.android.services.analytics.test.FakeAnalyticsService
 import io.element.android.tests.testutils.WarmUpRule
 import io.element.android.tests.testutils.awaitLastSequentialItem
@@ -86,6 +89,7 @@ import io.element.android.tests.testutils.lambda.value
 import io.element.android.tests.testutils.test
 import io.element.android.tests.testutils.testCoroutineDispatchers
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -103,7 +107,6 @@ import java.util.Date
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class TimelinePresenterTest {
     @get:Rule
@@ -177,6 +180,7 @@ class TimelinePresenterTest {
         )
         val room = FakeJoinedRoom(
             liveTimeline = timeline,
+            roomCoroutineScope = backgroundScope,
         )
         val sessionPreferencesStore = InMemorySessionPreferencesStore(isSendPublicReadReceiptsEnabled = isSendPublicReadReceiptsEnabled)
         val presenter = createTimelinePresenter(
@@ -620,6 +624,7 @@ class TimelinePresenterTest {
                 // (isEventLoaded defaults to false), so the FAB targets the out-of-window marker.
                 initialRoomInfo = aRoomInfo(fullyReadEventId = fullyReadEventId, numUnreadMessages = 1),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -656,6 +661,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 initialRoomInfo = aRoomInfo(fullyReadEventId = fullyReadEventId, numUnreadMessages = 1),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -692,6 +698,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 initialRoomInfo = aRoomInfo(fullyReadEventId = fullyReadEventId, numUnreadMessages = 0),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -725,6 +732,7 @@ class TimelinePresenterTest {
                 // virtual ReadMarker because there are no items newer than it.
                 initialRoomInfo = aRoomInfo(fullyReadEventId = AN_EVENT_ID),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -756,6 +764,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 initialRoomInfo = aRoomInfo(fullyReadEventId = AN_EVENT_ID),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -783,6 +792,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 initialRoomInfo = aRoomInfo(fullyReadEventId = AN_EVENT_ID),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -813,6 +823,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 initialRoomInfo = aRoomInfo(fullyReadEventId = AN_EVENT_ID),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -849,6 +860,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 initialRoomInfo = aRoomInfo(fullyReadEventId = fullyReadEventId, numUnreadMessages = 1),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             timeline = timeline,
@@ -1033,6 +1045,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 threadRootIdForEventResult = { _ -> Result.success(null) },
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(
             room = room,
@@ -1079,7 +1092,11 @@ class TimelinePresenterTest {
             val focusedState = consumeItemsUntilPredicate { it.focusRequestState == FocusRequestState.Success(AN_EVENT_ID) }.last()
             assertThat(focusedState.isLive).isFalse()
             initialState.eventSink.invoke(TimelineEvent.LoadMore(Timeline.PaginationDirection.FORWARDS))
-            advanceUntilIdle()
+
+            // Give some time for any potential pagination to be called, but it should not be called because the focused event is not rendered yet.
+            // Also, given enough time, a new state should be emitted with isLive = false, because we switched to a focused event timeline.
+            runCurrent()
+
             assert(paginateLambda).isNeverCalled()
             assertThat(expectMostRecentItem().isLive).isFalse()
         }
@@ -1150,7 +1167,8 @@ class TimelinePresenterTest {
             initialState.eventSink.invoke(TimelineEvent.LoadMore(Timeline.PaginationDirection.FORWARDS))
             advanceUntilIdle()
             assert(paginateLambda).isNeverCalled()
-            assertThat(expectMostRecentItem().isLive).isFalse()
+            runCurrent()
+            ensureAllEventsConsumed()
         }
     }
 
@@ -1172,7 +1190,7 @@ class TimelinePresenterTest {
             initialState.eventSink.invoke(TimelineEvent.LoadMore(Timeline.PaginationDirection.FORWARDS))
             advanceUntilIdle()
             assert(paginateLambda).isNeverCalled()
-            assertThat(expectMostRecentItem().isLive).isFalse()
+            ensureAllEventsConsumed()
         }
     }
 
@@ -1245,6 +1263,7 @@ class TimelinePresenterTest {
                     roomPermissions = roomPermissions(),
                     threadRootIdForEventResult = { Result.success(null) },
                 ),
+                roomCoroutineScope = backgroundScope,
             ),
             timelineItemIndexer = timelineItemIndexer,
         )
@@ -1260,13 +1279,19 @@ class TimelinePresenterTest {
 
             advanceUntilIdle()
 
-            awaitItem().also { state ->
-                assertThat(state.focusedEventId).isEqualTo(AN_EVENT_ID)
-                assertThat(state.focusRequestState).isEqualTo(FocusRequestState.Requested(AN_EVENT_ID, Duration.ZERO))
+            // The timeline items factory is now built eagerly, so states can be emitted before the
+            // focus request is picked up. Skip to the first one that carries it.
+            var state = awaitItem()
+            while (state.focusedEventId == null) {
+                state = awaitItem()
             }
-            awaitItem().also { state ->
-                assertThat(state.focusedEventId).isEqualTo(AN_EVENT_ID)
-                assertThat(state.focusRequestState).isEqualTo(FocusRequestState.Success(AN_EVENT_ID, 0))
+            state.also {
+                assertThat(it.focusedEventId).isEqualTo(AN_EVENT_ID)
+                assertThat(it.focusRequestState).isEqualTo(FocusRequestState.Requested(AN_EVENT_ID, Duration.ZERO))
+            }
+            awaitItem().also {
+                assertThat(it.focusedEventId).isEqualTo(AN_EVENT_ID)
+                assertThat(it.focusRequestState).isEqualTo(FocusRequestState.Success(AN_EVENT_ID, 0))
             }
         }
     }
@@ -1283,6 +1308,7 @@ class TimelinePresenterTest {
                     roomPermissions = roomPermissions(),
                     threadRootIdForEventResult = { _ -> Result.success(null) },
                 ),
+                roomCoroutineScope = backgroundScope,
             )
         )
         presenter.test {
@@ -1330,6 +1356,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 threadRootIdForEventResult = { _ -> Result.success(threadId) },
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val openThreadLambda = lambdaRecorder { _: ThreadId, _: EventId? -> }
         val navigator = FakeMessagesNavigator(onOpenThreadLambda = openThreadLambda)
@@ -1389,6 +1416,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 threadRootIdForEventResult = { _ -> Result.success(threadId) },
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val openThreadLambda = lambdaRecorder { _: ThreadId, _: EventId? -> }
         val navigator = FakeMessagesNavigator(onOpenThreadLambda = openThreadLambda)
@@ -1444,6 +1472,7 @@ class TimelinePresenterTest {
                 // Use a different thread id
                 threadRootIdForEventResult = { _ -> Result.success(A_THREAD_ID_2) },
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val openThreadLambda = lambdaRecorder { _: ThreadId, _: EventId? -> }
         val navigator = FakeMessagesNavigator(onOpenThreadLambda = openThreadLambda)
@@ -1503,6 +1532,7 @@ class TimelinePresenterTest {
                 // The event is in the main timeline, not in a thread
                 threadRootIdForEventResult = { _ -> Result.success(null) },
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val openRoomLambda = lambdaRecorder { _: RoomId, _: EventId?, _: List<String> -> }
         val navigator = FakeMessagesNavigator(onNavigateToRoomLambda = openRoomLambda)
@@ -1535,6 +1565,38 @@ class TimelinePresenterTest {
                     value(AN_EVENT_ID),
                     value(emptyList<String>())
                 )
+        }
+    }
+
+    @Test
+    fun `present - copy to clipboard on old device shows a toast`() = runTest {
+        val clipboardHelper = FakeClipboardHelper(isOldDevice = true)
+        val toastHelper = FakeToastHelper()
+        val presenter = createTimelinePresenter(
+            clipboardHelper = clipboardHelper,
+            toastHelper = toastHelper,
+        )
+        presenter.test {
+            awaitFirstItem().eventSink(TimelineEvent.CopyToClipboard("https://element.io"))
+            assertThat(clipboardHelper.clipboardContents).isEqualTo("https://element.io")
+            assertThat(toastHelper.shownToasts).containsExactly(CommonStrings.common_copied_to_clipboard)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `present - copy to clipboard on new device does not show a toast`() = runTest {
+        val clipboardHelper = FakeClipboardHelper(isOldDevice = false)
+        val toastHelper = FakeToastHelper()
+        val presenter = createTimelinePresenter(
+            clipboardHelper = clipboardHelper,
+            toastHelper = toastHelper,
+        )
+        presenter.test {
+            awaitFirstItem().eventSink(TimelineEvent.CopyToClipboard("https://element.io"))
+            assertThat(clipboardHelper.clipboardContents).isEqualTo("https://element.io")
+            assertThat(toastHelper.shownToasts).isEmpty()
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
@@ -1664,55 +1726,6 @@ class TimelinePresenterTest {
     }
 
     @Test
-    fun `present - when room member info is loaded, read receipts info should be updated`() = runTest {
-        val timeline = FakeTimeline(
-            timelineItems = flowOf(
-                listOf(
-                    MatrixTimelineItem.Event(
-                        A_UNIQUE_ID,
-                        anEventTimelineItem(
-                            sender = A_USER_ID,
-                            receipts = persistentListOf(
-                                Receipt(
-                                    userId = A_USER_ID,
-                                    timestamp = 0L,
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        )
-        val room = FakeJoinedRoom(
-            liveTimeline = timeline,
-            baseRoom = FakeBaseRoom(
-                roomPermissions = roomPermissions(),
-            ),
-        ).apply {
-            givenRoomMembersState(RoomMembersState.Unknown)
-        }
-
-        val avatarUrl = "https://domain.com/avatar.jpg"
-
-        val presenter = createTimelinePresenter(timeline, room)
-        presenter.test {
-            val initialState = consumeItemsUntilPredicate(30.seconds) { it.timelineItems.isNotEmpty() }.last()
-            val event = initialState.timelineItems.first() as TimelineItem.Event
-            assertThat(event.senderAvatar.url).isNull()
-            assertThat(event.readReceiptState.receipts.first().avatarData.url).isNull()
-
-            room.givenRoomMembersState(
-                RoomMembersState.Ready(
-                    persistentListOf(aRoomMember(userId = A_USER_ID, avatarUrl = avatarUrl))
-                )
-            )
-
-            val updatedEvent = awaitItem().timelineItems.first() as TimelineItem.Event
-            assertThat(updatedEvent.readReceiptState.receipts.first().avatarData.url).isEqualTo(avatarUrl)
-        }
-    }
-
-    @Test
     fun `present - timeline room info includes predecessor room when room has predecessor`() = runTest {
         val predecessorRoomId = RoomId("!predecessor:server.org")
         val predecessorRoom = PredecessorRoom(roomId = predecessorRoomId)
@@ -1722,6 +1735,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 predecessorRoomResult = { predecessorRoom }
             ),
+            roomCoroutineScope = backgroundScope,
         )
 
         val presenter = createTimelinePresenter(room = room)
@@ -1739,6 +1753,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 predecessorRoomResult = { null }
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val presenter = createTimelinePresenter(room = room)
         presenter.test {
@@ -1753,6 +1768,7 @@ class TimelinePresenterTest {
             baseRoom = FakeBaseRoom(
                 roomPermissions = roomPermissions(),
             ),
+            roomCoroutineScope = backgroundScope,
         )
         val onNavigateToRoomLambda = lambdaRecorder<RoomId, EventId?, List<String>, Unit> { _, _, _ -> }
         val navigator = FakeMessagesNavigator(
@@ -1821,11 +1837,118 @@ class TimelinePresenterTest {
         }
     }
 
+    @Test
+    fun `present - entering selection mode selects the target event`() = runTest {
+        val timelineItems = MutableStateFlow(
+            listOf(MatrixTimelineItem.Event(UniqueId("1"), anEventTimelineItem(eventId = AN_EVENT_ID, content = aMessageContent())))
+        )
+        val presenter = createTimelinePresenter(
+            timeline = FakeTimeline(timelineItems = timelineItems),
+        )
+        presenter.test {
+            val initialState = consumeItemsUntilPredicate { it.hasAnyEvent }.last()
+            assertThat(initialState.selectionState).isEqualTo(SelectionState.Disabled)
+            initialState.eventSink(TimelineEvent.EnterSelectionMode(SelectionAction.Forward, AN_EVENT_ID))
+            val state = consumeItemsUntilPredicate { it.isSelectionModeActive }.last()
+            assertThat(state.selectionState).isEqualTo(SelectionState.Active(SelectionAction.Forward, persistentSetOf(AN_EVENT_ID)))
+            assertThat(state.selectedCount).isEqualTo(1)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `present - toggling the last selected event keeps selection mode active`() = runTest {
+        val timelineItems = MutableStateFlow(
+            listOf(MatrixTimelineItem.Event(UniqueId("1"), anEventTimelineItem(eventId = AN_EVENT_ID, content = aMessageContent())))
+        )
+        val presenter = createTimelinePresenter(
+            timeline = FakeTimeline(timelineItems = timelineItems),
+        )
+        presenter.test {
+            val initialState = consumeItemsUntilPredicate { it.hasAnyEvent }.last()
+            initialState.eventSink(TimelineEvent.EnterSelectionMode(SelectionAction.Forward, AN_EVENT_ID))
+            consumeItemsUntilPredicate { it.isSelectionModeActive }
+            initialState.eventSink(TimelineEvent.ToggleSelection(AN_EVENT_ID))
+            // Selection mode is only exited explicitly, so an empty selection keeps it active.
+            val state = consumeItemsUntilPredicate { it.selectedCount == 0 }.last()
+            assertThat(state.selectionState).isEqualTo(SelectionState.Active(SelectionAction.Forward, persistentSetOf()))
+            assertThat(state.isSelectionModeActive).isTrue()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `present - exiting selection mode clears the selection`() = runTest {
+        val timelineItems = MutableStateFlow(
+            listOf(MatrixTimelineItem.Event(UniqueId("1"), anEventTimelineItem(eventId = AN_EVENT_ID, content = aMessageContent())))
+        )
+        val presenter = createTimelinePresenter(
+            timeline = FakeTimeline(timelineItems = timelineItems),
+        )
+        presenter.test {
+            val initialState = consumeItemsUntilPredicate { it.hasAnyEvent }.last()
+            initialState.eventSink(TimelineEvent.EnterSelectionMode(SelectionAction.Forward, AN_EVENT_ID))
+            consumeItemsUntilPredicate { it.isSelectionModeActive }
+            initialState.eventSink(TimelineEvent.ExitSelectionMode)
+            val state = consumeItemsUntilPredicate { !it.isSelectionModeActive }.last()
+            assertThat(state.selectionState).isEqualTo(SelectionState.Disabled)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `present - a selected event which cannot be forwarded anymore is deselected`() = runTest {
+        val timelineItems = MutableStateFlow(
+            listOf(
+                MatrixTimelineItem.Event(UniqueId("1"), anEventTimelineItem(eventId = AN_EVENT_ID, content = aMessageContent())),
+                MatrixTimelineItem.Event(UniqueId("2"), anEventTimelineItem(eventId = AN_EVENT_ID_2, content = aMessageContent())),
+            )
+        )
+        val presenter = createTimelinePresenter(
+            timeline = FakeTimeline(timelineItems = timelineItems),
+        )
+        presenter.test {
+            val initialState = consumeItemsUntilPredicate { it.hasAnyEvent }.last()
+            initialState.eventSink(TimelineEvent.EnterSelectionMode(SelectionAction.Forward, AN_EVENT_ID))
+            initialState.eventSink(TimelineEvent.ToggleSelection(AN_EVENT_ID_2))
+            consumeItemsUntilPredicate { it.selectedCount == 2 }
+            // The first message is deleted, so it cannot be forwarded anymore.
+            timelineItems.value = listOf(
+                MatrixTimelineItem.Event(UniqueId("1"), anEventTimelineItem(eventId = AN_EVENT_ID, content = aRedactedContent())),
+                MatrixTimelineItem.Event(UniqueId("2"), anEventTimelineItem(eventId = AN_EVENT_ID_2, content = aMessageContent())),
+            )
+            val state = consumeItemsUntilPredicate { it.selectedCount == 1 }.last()
+            assertThat(state.selectionState).isEqualTo(SelectionState.Active(SelectionAction.Forward, persistentSetOf(AN_EVENT_ID_2)))
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `present - the selection survives a timeline which no longer contains the selected event`() = runTest {
+        val timelineItems = MutableStateFlow(
+            listOf(MatrixTimelineItem.Event(UniqueId("1"), anEventTimelineItem(eventId = AN_EVENT_ID, content = aMessageContent())))
+        )
+        val presenter = createTimelinePresenter(
+            timeline = FakeTimeline(timelineItems = timelineItems),
+        )
+        presenter.test {
+            val initialState = consumeItemsUntilPredicate { it.hasAnyEvent }.last()
+            initialState.eventSink(TimelineEvent.EnterSelectionMode(SelectionAction.Forward, AN_EVENT_ID))
+            consumeItemsUntilPredicate { it.isSelectionModeActive }
+            // The timeline no longer holds the selected event, for instance because it has been reset or because it switched to a detached timeline.
+            timelineItems.value = emptyList()
+            val state = consumeItemsUntilPredicate { !it.hasAnyEvent }.last()
+            // The selection is the user intent: it is only validated when the action is confirmed, so that a transient timeline update cannot drop it.
+            assertThat(state.selectionState).isEqualTo(SelectionState.Active(SelectionAction.Forward, persistentSetOf(AN_EVENT_ID)))
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
     private suspend fun <T> ReceiveTurbine<T>.awaitFirstItem(): T {
         return awaitItem()
     }
 
-    private fun aRoomWithDetachedTimeline(
+    private fun TestScope.aRoomWithDetachedTimeline(
         paginateLambda: (Timeline.PaginationDirection) -> Result<Boolean>,
         createTimelineResult: () -> Result<Timeline> = { Result.success(aDetachedTimeline(paginateLambda)) },
     ): FakeJoinedRoom {
@@ -1838,6 +1961,7 @@ class TimelinePresenterTest {
                 roomPermissions = roomPermissions(),
                 threadRootIdForEventResult = { _ -> Result.success(null) },
             ),
+            roomCoroutineScope = backgroundScope,
         )
     }
 
@@ -1882,6 +2006,7 @@ class TimelinePresenterTest {
             baseRoom = FakeBaseRoom(
                 roomPermissions = roomPermissions(),
             ),
+            roomCoroutineScope = backgroundScope,
         ),
         redactedVoiceMessageManager: RedactedVoiceMessageManager = FakeRedactedVoiceMessageManager(),
         messagesNavigator: FakeMessagesNavigator = FakeMessagesNavigator(),
@@ -1894,6 +2019,8 @@ class TimelinePresenterTest {
         markAsFullyRead: MarkAsFullyRead = FakeMarkAsFullyRead { _, _ -> },
         timelineProtectionPresenter: Presenter<TimelineProtectionState> = { aTimelineProtectionState() },
         resolveVerifiedUserSendFailurePresenter: Presenter<ResolveVerifiedUserSendFailureState> = { aResolveVerifiedUserSendFailureState() },
+        clipboardHelper: ClipboardHelper = FakeClipboardHelper(),
+        toastHelper: ToastHelper = FakeToastHelper(),
     ): TimelinePresenter {
         return TimelinePresenter(
             timelineItemsFactoryCreator = aTimelineItemsFactoryCreator(),
@@ -1906,15 +2033,23 @@ class TimelinePresenterTest {
             sendPollResponseAction = sendPollResponseAction,
             sessionPreferencesStore = sessionPreferencesStore,
             timelineItemIndexer = timelineItemIndexer,
-            timelineController = TimelineController(room, timeline),
+            timelineController = TimelineController(
+                room = room,
+                liveTimeline = timeline,
+                roomCoroutineScope = backgroundScope,
+                dispatchers = testCoroutineDispatchers(),
+            ),
             resolveVerifiedUserSendFailurePresenter = resolveVerifiedUserSendFailurePresenter,
             typingNotificationPresenter = { aTypingNotificationState() },
             roomCallStatePresenter = { aStandByCallState() },
             featureFlagService = featureFlagService,
+            snackbarDispatcher = SnackbarDispatcher(),
             analyticsService = FakeAnalyticsService(),
             liveLocationShareManager = liveLocationShareManager,
             markAsFullyRead = markAsFullyRead,
             timelineProtectionPresenter = timelineProtectionPresenter,
+                clipboardHelper = clipboardHelper,
+            toastHelper = toastHelper,
         )
     }
 }

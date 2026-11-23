@@ -17,12 +17,15 @@ import io.element.android.compound.tokens.generated.compoundColorsLight
 import io.element.android.features.enterprise.api.BugReportUrl
 import io.element.android.libraries.androidutils.json.JsonProvider
 import io.element.android.libraries.core.uri.ensureProtocol
+import io.element.android.libraries.matrix.api.accountprovider.AccountProvider
 import io.element.android.libraries.matrix.test.A_HOMESERVER_URL
 import io.element.android.libraries.matrix.test.A_SESSION_ID
 import io.element.android.libraries.matrix.test.FakeTemporaryMatrixClient
 import io.element.android.libraries.matrix.test.FakeTemporaryMatrixClientFactory
 import io.element.android.tests.testutils.lambda.lambdaRecorder
 import io.element.android.tests.testutils.lambda.value
+import io.element.android.tests.testutils.testCoroutineDispatchers
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Test
@@ -65,16 +68,25 @@ class DefaultEnterpriseServiceTest {
     )
 
     @Test
-    fun `homeserverAllowList returns the Forest Network homeserver`() {
+    fun `accountProviderAllowList returns only the Forest Network server`() = runTest {
         val defaultEnterpriseService = createDefaultEnterpriseService()
-        assertThat(defaultEnterpriseService.homeserverAllowList()).containsExactly("https://matrix.theforestnetwork.earth")
+        assertThat(defaultEnterpriseService.accountProviderAllowList())
+            .containsExactly(AccountProvider.Generic("matrix.theforestnetwork.earth"))
     }
 
     @Test
-    fun `isAllowedToConnectToHomeserver is true only for the Forest Network homeserver`() = runTest {
+    fun `canConnectToAnyAccountProvider is always false`() = runTest {
         val defaultEnterpriseService = createDefaultEnterpriseService()
-        assertThat(defaultEnterpriseService.isAllowedToConnectToHomeserver("https://matrix.theforestnetwork.earth")).isTrue()
-        assertThat(defaultEnterpriseService.isAllowedToConnectToHomeserver(A_HOMESERVER_URL)).isFalse()
+        assertThat(defaultEnterpriseService.canConnectToAnyAccountProvider()).isFalse()
+    }
+
+    @Test
+    fun `isAllowedToConnectToAccountProvider is true only for the Forest Network server`() = runTest {
+        val defaultEnterpriseService = createDefaultEnterpriseService()
+        assertThat(defaultEnterpriseService.isAllowedToConnectToAccountProvider(AccountProvider.Generic("matrix.theforestnetwork.earth"))).isTrue()
+        // The full URL form is the same server, so it is accepted too.
+        assertThat(defaultEnterpriseService.isAllowedToConnectToAccountProvider(AccountProvider.Generic("https://matrix.theforestnetwork.earth"))).isTrue()
+        assertThat(defaultEnterpriseService.isAllowedToConnectToAccountProvider(AccountProvider.Generic("example.org"))).isFalse()
     }
 
     @Test
@@ -165,11 +177,12 @@ class DefaultEnterpriseServiceTest {
         closeLambda.assertions().isCalledOnce()
     }
 
-    private fun createDefaultEnterpriseService(
+    private fun TestScope.createDefaultEnterpriseService(
         client: FakeTemporaryMatrixClient = FakeTemporaryMatrixClient(),
         jsonProvider: JsonProvider = { Json }
     ) = DefaultEnterpriseService(
         temporaryMatrixClientFactory = FakeTemporaryMatrixClientFactory(createResult = { Result.success(client) }),
         jsonProvider = jsonProvider,
+        dispatchers = testCoroutineDispatchers(),
     )
 }

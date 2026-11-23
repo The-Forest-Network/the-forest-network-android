@@ -63,6 +63,8 @@ fun aTimelineState(
     displayJumpToUnread: Boolean = false,
     jumpToUnread: JumpToUnreadState = JumpToUnreadState.Hidden,
     newEventState: NewEventState = NewEventState.None,
+    selectionState: SelectionState = SelectionState.Disabled,
+    useNewTimelineEventRenderer: Boolean = false,
     eventSink: (TimelineEvent) -> Unit = {},
 ): TimelineState {
     val focusedEventId = timelineItems.filterIsInstance<TimelineItem.Event>().getOrNull(focusedEventIndex)?.eventId
@@ -84,6 +86,8 @@ fun aTimelineState(
         displayThreadSummaries = displayThreadSummaries,
         displayJumpToUnread = displayJumpToUnread,
         jumpToUnread = jumpToUnread,
+        selectionState = selectionState,
+        useNewTimelineEventRenderer = useNewTimelineEventRenderer,
         eventSink = eventSink,
     )
 }
@@ -150,11 +154,14 @@ internal fun aTimelineItemEvent(
     isMine: Boolean = false,
     isEditable: Boolean = false,
     canBeRepliedTo: Boolean = false,
+    senderId: UserId = UserId("@senderId:domain"),
     senderDisplayName: String = USER_NAME_SENDER,
     displayNameAmbiguous: Boolean = false,
     content: TimelineItemEventContent = aTimelineItemTextContent(),
     groupPosition: TimelineItemGroupPosition = TimelineItemGroupPosition.None,
     sendState: LocalEventSendState? = null,
+    editSendState: LocalEventSendState? = null,
+    redactionSendState: LocalEventSendState? = null,
     inReplyTo: InReplyToDetails? = null,
     threadInfo: TimelineItemThreadInfo? = null,
     debugInfo: TimelineItemDebugInfo = aTimelineItemDebugInfo(),
@@ -166,8 +173,8 @@ internal fun aTimelineItemEvent(
         id = UniqueId(UUID.randomUUID().toString()),
         eventId = eventId,
         transactionId = transactionId,
-        senderId = UserId("@senderId:domain"),
-        senderAvatar = AvatarData("@senderId:domain", USER_NAME_SENDER, size = AvatarSize.TimelineSender),
+        senderId = senderId,
+        senderAvatar = AvatarData(senderId.value, USER_NAME_SENDER, size = AvatarSize.TimelineSender),
         content = content,
         reactionsState = timelineItemReactions,
         readReceiptState = readReceiptState,
@@ -181,6 +188,8 @@ internal fun aTimelineItemEvent(
         ),
         groupPosition = groupPosition,
         localSendState = sendState,
+        editSendState = editSendState,
+        redactionSendState = redactionSendState,
         inReplyTo = inReplyTo,
         threadInfo = threadInfo,
         origin = null,
@@ -277,14 +286,18 @@ internal fun aRedactedMessagesGroupedEvents(
 }
 
 internal fun aTimelineRoomInfo(
+    currentUserId: UserId = UserId("@user:domain"),
     name: String = ROOM_NAME,
     isDm: Boolean = false,
+    renderReadReceipts: Boolean = true,
     userHasPermissionToSendMessage: Boolean = true,
     pinnedEventIds: List<EventId> = emptyList(),
     typingNotificationState: TypingNotificationState = aTypingNotificationState(),
     predecessorRoom: PredecessorRoom? = null,
 ) = TimelineRoomInfo(
+    currentUserId = currentUserId,
     isDm = isDm,
+    renderReadReceipts = renderReadReceipts,
     name = name,
     userHasPermissionToSendMessage = userHasPermissionToSendMessage,
     userHasPermissionToSendReaction = true,

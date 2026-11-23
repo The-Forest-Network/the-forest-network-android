@@ -10,8 +10,8 @@ import org.gradle.api.JavaVersion
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 object Versions {
-    const val VERSION_CODE = 2
-    val VERSION_NAME = "1.0.1"
+    const val VERSION_CODE = 3
+    val VERSION_NAME = "1.1.0"
 
     /**
      * Compile SDK version. Must be updated when a new Android version is released.
@@ -44,7 +44,7 @@ object Versions {
     /**
      * minSdkVersion that will be set in the Android Manifest.
      */
-    val minSdk = if (isEnterpriseBuild) MIN_SDK_ENTERPRISE else MIN_SDK_FOSS
+    fun minSdk(isEnterpriseBuild: Boolean) = if (isEnterpriseBuild) MIN_SDK_ENTERPRISE else MIN_SDK_FOSS
 
     /**
      * Java version used for compilation.
